@@ -84,7 +84,7 @@ $(document).ready(function() { //  Has the DOM loaded?
         }); 
     }
     $('#widget_type').change(function() {
-        if ($(this).val() != 1) { // if the value changes from map to a chart widget, show x and y axis forms
+        if ($(this).val() != 1 && $(this).val() != 5) { // if the value changes from map to a chart widget, show x and y axis forms
             $("#chart_forms").show("slow");
             var mapfilename = $('#map_filename').val()
             update_axis_select(mapfilename);

@@ -43,9 +43,17 @@ class DashboardController extends Controller
             $get_map_filename = $decode_metadata['map_filename'];
 
             if ($get_widget['widget_type_id'] == 1) { # I'm the map i'm the map (he's the map he's the map) I'M THE MAP!!
-                $get_widget['map_json'] = Storage::get("users/{$userId}/{$get_map_filename}");
+                $get_widget['map_json'] = FileUpload::select('geojson')
+                    ->where('user_id', '=', Auth::id())
+                    ->where('filename', '=', $get_map_filename)
+                    ->get();
 		        $get_widget['random_id'] = Str::random();
 		        $get_widget['filename'] = preg_replace('/[^A-Za-z0-9\_\.]/', '', basename($get_map_filename));
+            } elseif ($get_widget['widget_type_id'] == 5) { # TABLE!
+                    foreach ($json_version['features'] as $feature) {
+                        $value_md[] = $feature['properties'];
+                    }
+                    $get_widget['table'] = $value_md;
             } elseif ($get_widget['widget_type_id'] > 1 && $get_widget['widget_type_id'] <= 4) { # Handle Charts
                 $values = [];
                 $geojson = FileUpload::select('geojson')
@@ -70,18 +78,16 @@ class DashboardController extends Controller
                     }
                     $values = array_values($values_md);
 
-                } else { # Handle Sum
-
-                    foreach ($json_version['features'] as $feature) {
-                        if (!isset($values_md[$feature['properties'][$decode_metadata['x_axis']]])) {
-                            $values_md[$feature['properties'][$decode_metadata['x_axis']]] = $feature['properties'][$decode_metadata['y_axis']];
-                        } else {
-                            $values_md[$feature['properties'][$decode_metadata['x_axis']]] = $values_md[$feature['properties'][$decode_metadata['x_axis']]] + $feature['properties'][$decode_metadata['y_axis']];
+                } else { # Handle Sum & Table because there is no way to tell if its a sum but we can tell if it's a table
+                        foreach ($json_version['features'] as $feature) {
+                            if (!isset($values_md[$feature['properties'][$decode_metadata['x_axis']]])) {
+                                $values_md[$feature['properties'][$decode_metadata['x_axis']]] = $feature['properties'][$decode_metadata['y_axis']];
+                            } else {
+                                $values_md[$feature['properties'][$decode_metadata['x_axis']]] = $values_md[$feature['properties'][$decode_metadata['x_axis']]] + $feature['properties'][$decode_metadata['y_axis']];
+                            }
                         }
-                    }
-                    $labels = array_keys($values_md);
-                    $values = array_values($values_md);
-
+                        $labels = array_keys($values_md);
+                        $values = array_values($values_md);
                 }
 
                 $chart_types = [2 => 'line', 3 => 'bar', 4 => 'pie', 5 => 'table']; # TODO: Add the chart value name to the database as a column instead of this
@@ -131,6 +137,7 @@ class DashboardController extends Controller
                     //         ]
                     // ]);
                 $get_widget['chart'] = $chart;
+            } else { # Handle Table widgets
             }
 	    }
 	    $get_widget_types = DashboardWidgetType::get(); // Get all widget types
@@ -152,8 +159,6 @@ class DashboardController extends Controller
     public function add_widget($id, Request $request) { // Add the widget to the database
         $request->validate([
             'widget_type' => ['required'],
-            'x_axis' => ['required'],
-            'y_axis' => ['required'],
             'widget_type' => ['required'],
             'map_filename' => ['required'],
         ]);
@@ -162,14 +167,16 @@ class DashboardController extends Controller
                 ->where('user_id', '=', Auth::id())
                 ->where('filename', '=', $request->map_filename)
                 ->get();
-            if ($request->widget_type > 1) { # Give our own name for the widget if they leave it blank
+            if ($request->widget_type > 1 && $request->widget_type <= 4) { # Give our own name for the widget if they leave it blank
                 if ($request->y_axis == 'COUNT') { # If it's count, don't include SUM 
                     $widget_name = "$request->y_axis BY $request->x_axis ";
                 } else { 
                     $widget_name = "SUM OF $request->y_axis BY $request->x_axis";
                 }
-            } else { # Use the maps uploaded name
+            } elseif ($request->get_type == 1) { # Use the maps uploaded name
                 $widget_name = $get_filename_title->value('title');
+            } else { # TABLE
+                $widget_name = $get_filename_title->value('title')." Table";
             }
         } else { # Else use what the user set the title to
             $widget_name = $request->widget_name;
