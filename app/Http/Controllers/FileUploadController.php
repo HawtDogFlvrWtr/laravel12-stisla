@@ -14,6 +14,7 @@ class FileUploadController extends Controller
 {
     public function upload(Request $request)
     {
+        ini_set('max_execution_time', 0);
         $request->validate([
 	        'title' => 'required|max:255',
             'my_file' => 'required'
