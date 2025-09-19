@@ -16,7 +16,7 @@
 			<a href="{{ route('profile.add-widgets', ['id' => $dashboard_info['id']]) }}" class="btn btn-primary float-right">Add Widget</a>
 		</div>
 	</div>
-    <div id="none_shall_pass" class="">
+    <div id="none_shall_pass" class="min-height=1000px;">
         <div class="row">
 			<!-- Our Dependencies for just leaflet maps -->
 			<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -44,7 +44,7 @@
                     <div id="sortable-cards{{ $widget['id'] }}" class="card">
                         <div class="card-header flex-header">
 							{{$widget['name']}}
-							<form action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
+							<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
 								@csrf
 								<button type="submit" class="btn btn-secondary rounded-sm fas fa-trash"></button>
 							</form>
@@ -158,7 +158,7 @@
 						<div id="sortable-cards{{ $widget['id'] }}" class="card">
 							<div class="card-header flex-header">
 								{{$widget['name']}}
-								<form action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
+								<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
 									@csrf
 									<button type="submit" class="btn btn-secondary rounded-sm fas fa-trash"></button>
 								</form>
@@ -206,6 +206,28 @@
 			// If using localStorage
 			$.each(positions, function(id, pos) {
 				$("#" + id).css(pos);
+			});
+
+			// Handle delete alert
+			 $("[id^='delete-']").on('submit', function(event) {
+				event.preventDefault(); // Prevent default form submission
+
+				const form = this; // Reference to the form element
+
+				Swal.fire({
+					title: 'Are you sure?',
+					text: "You are about to delete this widget",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					confirmButtonText: 'Yes, delete it!'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						// If confirmed, submit the form
+						form.submit();
+					}
+				});
 			});
 		});
 	</script>

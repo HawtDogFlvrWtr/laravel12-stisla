@@ -13,6 +13,7 @@
                                 <tr>
                                     <th>Title</th>
                                     <th>Filename</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -20,6 +21,12 @@
                                 <tr>
                                     <td>{{$file['title']}}</td>
                                     <td>{{$file['filename']}}</td>
+                                    <td>
+                                        <form id="delete-{{ $file['id'] }}" action="{{ route('profile.delete-geojson', ['id' => $file['id']]) }}" method="POST" style="display: inline-block;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-secondary rounded-sm fas fa-trash"></button>
+                                        </form>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -53,6 +60,28 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         new DataTable('#uploads_table');
+
+        // Handle delete alert
+        $("[id^='delete-']").on('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const form = this; // Reference to the form element
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You are about to delete this file",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If confirmed, submit the form
+                    form.submit();
+                }
+            });
+        });
     });
 </script>
 @endsection

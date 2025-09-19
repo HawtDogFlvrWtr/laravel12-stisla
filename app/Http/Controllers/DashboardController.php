@@ -35,9 +35,6 @@ class DashboardController extends Controller
 
 	    # Iterate Widgets
         foreach ($get_widgets as $get_widget) {
-            #var_dump($get_widget);
-
-            #die;
             $chart = [];
             $values = [];
             $values_md = [];

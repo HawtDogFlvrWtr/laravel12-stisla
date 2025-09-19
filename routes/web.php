@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/add-widgets/{id}', [App\Http\Controllers\DashboardController::class, 'add_widget']);
     Route::post('/profile/delete-widget/{id}', [App\Http\Controllers\DashboardController::class, 'delete_widget'])->name('profile.delete-widget');
     Route::post('/profile/delete-dashboard/{id}', [App\Http\Controllers\DashboardController::class, 'delete_dashboard'])->name('profile.delete-dashboard');
+    Route::post('/profile/delete-geojson/{id}', [App\Http\Controllers\FileUploadController::class, 'delete'])->name('profile.delete-geojson');
     Route::post('/profile/get-file-metadata', [App\Http\Controllers\ProfileController::class, 'get_file_metadata']);
     Route::get('/profile/get-geojson/{filename}', [App\Http\Controllers\DashboardController::class, 'get_geojson'])->name('profile.get-geojson');
 

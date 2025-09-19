@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Process;
 use App\Models\FileUpload;
@@ -134,5 +135,11 @@ class FileUploadController extends Controller
         } else {
             return back()->with('error', 'This file already exists within the system');
         }
+    }
+
+    public function delete(Request $request) {
+        $del_id = FileUpload::where('user_id', '=', Auth::id())->where('id', '=', $request->id);
+        $del_id->delete();
+        return redirect()->route('profile.upload');
     }
 }
