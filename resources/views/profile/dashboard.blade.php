@@ -43,7 +43,7 @@
             @foreach ($widgets as $widget)
                 @if ($widget['widget_type_id'] == 1) <!-- I'm the map, i'm the map (he's the map, he's the map) I'M THE MAP!-->
                 <div class="col-md-4">
-                    <div id="sortable-cards{{ $widget['id'] }}" class="card">
+                    <div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;">
                         <div class="card-header flex-header">
 							{{$widget['name']}}
 							<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
@@ -172,7 +172,7 @@
 					@else
 					<div class="col-md-6">
 					@endif
-						<div id="sortable-cards{{ $widget['id'] }}" class="card">
+						<div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;">
 							<div class="card-header flex-header">
 								{{$widget['name']}}
 								<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
