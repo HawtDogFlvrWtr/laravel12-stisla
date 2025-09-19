@@ -24,8 +24,8 @@ class DashboardController extends Controller
         $geojson_chart_array = [];
 	    foreach ($my_files as $my_file) {
             $file = $my_file['filename'];
-                $geojson_array[] = ['filename' => preg_replace('/[^A-Za-z0-9\_\.]/', '', basename($file))]; //$geojson_array[] = geojson_array.append()
-            }
+            $geojson_array[] = ['filename' => preg_replace('/[^A-Za-z0-9\_\.]/', '', basename($file))]; //$geojson_array[] = geojson_array.append()
+        }
 	    # Get Generalized Dashboard
         $dashboard_info = Dashboard::where('user_id', '=', $userId)
             ->where('id', '=', $id)
@@ -49,11 +49,12 @@ class DashboardController extends Controller
                     ->get();
 		        $get_widget['random_id'] = Str::random();
 		        $get_widget['filename'] = preg_replace('/[^A-Za-z0-9\_\.]/', '', basename($get_map_filename));
+                $get_widget['filename_only'] = pathinfo($get_widget['filename'], PATHINFO_FILENAME);
             } elseif ($get_widget['widget_type_id'] == 5) { # TABLE!
-                    foreach ($json_version['features'] as $feature) {
-                        $value_md[] = $feature['properties'];
-                    }
-                    $get_widget['table'] = $value_md;
+                foreach ($json_version['features'] as $feature) {
+                    $value_md[] = $feature['properties'];
+                }
+                $get_widget['table'] = $value_md;
             } elseif ($get_widget['widget_type_id'] > 1 && $get_widget['widget_type_id'] <= 4) { # Handle Charts
                 $values = [];
                 $geojson = FileUpload::select('geojson')
@@ -79,15 +80,15 @@ class DashboardController extends Controller
                     $values = array_values($values_md);
 
                 } else { # Handle Sum & Table because there is no way to tell if its a sum but we can tell if it's a table
-                        foreach ($json_version['features'] as $feature) {
-                            if (!isset($values_md[$feature['properties'][$decode_metadata['x_axis']]])) {
-                                $values_md[$feature['properties'][$decode_metadata['x_axis']]] = $feature['properties'][$decode_metadata['y_axis']];
-                            } else {
-                                $values_md[$feature['properties'][$decode_metadata['x_axis']]] = $values_md[$feature['properties'][$decode_metadata['x_axis']]] + $feature['properties'][$decode_metadata['y_axis']];
-                            }
+                    foreach ($json_version['features'] as $feature) {
+                        if (!isset($values_md[$feature['properties'][$decode_metadata['x_axis']]])) {
+                            $values_md[$feature['properties'][$decode_metadata['x_axis']]] = $feature['properties'][$decode_metadata['y_axis']];
+                        } else {
+                            $values_md[$feature['properties'][$decode_metadata['x_axis']]] = $values_md[$feature['properties'][$decode_metadata['x_axis']]] + $feature['properties'][$decode_metadata['y_axis']];
                         }
-                        $labels = array_keys($values_md);
-                        $values = array_values($values_md);
+                    }
+                    $labels = array_keys($values_md);
+                    $values = array_values($values_md);
                 }
 
                 $chart_types = [2 => 'line', 3 => 'bar', 4 => 'pie', 5 => 'table']; # TODO: Add the chart value name to the database as a column instead of this
@@ -128,21 +129,12 @@ class DashboardController extends Controller
                         "responsive" => true,
                         "maintainAspectRatio" => false, // This is true by default
                     ]);
-                    //->options([]);
-                    // ->options([
-                    //     "scales" => [
-                    //         "y" => [
-                    //             "beginAtZero" => true
-                    //             ]
-                    //         ]
-                    // ]);
                 $get_widget['chart'] = $chart;
             } else { # Handle Table widgets
             }
 	    }
 	    $get_widget_types = DashboardWidgetType::get(); // Get all widget types
         $array = ['dashboard_info' => $dashboard_info[0], 'widgets' => $get_widgets, 'widget_types' => $get_widget_types, 'all_geojsons' => $geojson_array];
-
         return view('profile.dashboard', $array);
     }
 
@@ -173,7 +165,7 @@ class DashboardController extends Controller
                 } else { 
                     $widget_name = "SUM OF $request->y_axis BY $request->x_axis";
                 }
-            } elseif ($request->get_type == 1) { # Use the maps uploaded name
+            } elseif ($request->widget_type == 1) { # Use the maps uploaded name
                 $widget_name = $get_filename_title->value('title');
             } else { # TABLE
                 $widget_name = $get_filename_title->value('title')." Table";

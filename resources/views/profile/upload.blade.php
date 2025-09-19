@@ -38,7 +38,9 @@
         <div class="col-md-4">
             <div class="card">
                 @error('my_file')
-                    <div>{{ $message }}</div>
+                @foreach ($errors->all() as $error)
+                    <div class="alert alert-danger">{{ $error }}</div>
+                @endforeach
                 @enderror
                 <div class="card-header">{{ __('Upload a GEO file') }}</div>
                 <div class="card-body">
@@ -46,9 +48,9 @@
                         @csrf
                         <div class="form-group">
                             <label for="title">File Title</label>
-                            <input type="title" class="form-control" id="title" name="title" aria-describedby="titleHelp" placeholder="Enter title">
+                            <input type="title" class="form-control" id="title" name="title" aria-describedby="titleHelp" placeholder="Enter title" value="" required>
                             <small id="titleHelp" class="form-text text-muted pb-5">This is where you make a title for the file you're uploading</small>
-                            <input type="file" name="my_file">
+                            <input type="file" name="my_file" required>
                             <button type="submit">Upload</button>
                         </div>
                     </form>
@@ -72,9 +74,9 @@
                 text: "You are about to delete this file",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonColor: '#6777ef',
+                cancelButtonColor: '#34395e',
+                confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
                     // If confirmed, submit the form

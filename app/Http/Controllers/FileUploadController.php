@@ -15,8 +15,8 @@ class FileUploadController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'my_file' => ['required'],
-	        'title' => ['required'],
+	        'title' => 'required|max:255',
+            'my_file' => 'required'
         ]);
         $file = $request->file('my_file');
         $title = $request->title;
