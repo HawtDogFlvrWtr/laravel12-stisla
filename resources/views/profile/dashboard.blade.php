@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" integrity="sha512-ENrTWqddXrLJsQS2A86QmvA17PkJ0GVm1bqj5aTgpeMAfDKN2+SIOLpKG8R/6KkimnhTb+VW5qqUHB/r1zaRgg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css" integrity="sha512-fYyZwU1wU0QWB4Yutd/Pvhy5J1oWAwFXun1pt+Bps04WSe4Aq6tyHlT4+MHSJhD8JlLfgLuC4CbCnX5KHSjyCg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- CSS Libraries -->
 @endpush
 
@@ -57,7 +57,7 @@
 								const overlayMaps{{ $widget['random_id'] }} = {};
 								// Generate all geojson overlays
 								@foreach ($all_geojsons as $each_geojson)
-									var {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }}= L.geoJson.ajax();
+									var {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }} = L.geoJSON();
 									overlayMaps{{ $widget['random_id'] }}.{{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }} = {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }};
 								@endforeach
 								// Setup the map layers we want to use
@@ -86,26 +86,42 @@
 									"Open Street Map OSM-WMS": osmwmsLayer,
 									"Open Street Map TOPO-WMS": topowmsLayer,
 								};
-
 								// Lazy load the geojson assigned to this widget
-								var {{ pathinfo($widget['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }} = new L.GeoJSON.AJAX("{{ route('profile.get-geojson', ['filename' => pathinfo($widget['filename'], PATHINFO_FILENAME)]) }}", {
-									oneachfeature: function (feature, layer) {
-										layer.bindPopup('<pre>'+json.stringify(feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
-									}
-								});
+								var first_full_name = '{{ $widget['filename_only'] }}';
+								getJsonFromServer(`/profile/get-geojson/${first_full_name}`)
+									.then(data => { // We got the data without issue
+										if (data) {
+											overlayMaps{{ $widget['random_id'] }}[first_full_name] = L.geoJson(data);; // Add it to the overlay object
+											overlayMaps{{ $widget['random_id'] }}[first_full_name].eachLayer(function (layer) { // Iterate so we can add popups
+												layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
+											});
+											markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[first_full_name]); // Convert that object to the marker library
+											map{{ $widget['random_id'] }}.addLayer(markers{{ $widget['random_id'] }}); // Add it to the map
+											var bounds = overlayMaps{{ $widget['random_id'] }}[first_full_name].getBounds();
+											// Bind them to the map as a whole, so the map and geojson adjust
+											map{{ $widget['random_id'] }}.fitBounds(bounds);
+											map{{ $widget['random_id'] }}.spin(false); // Turn off the spin
+										} else { // We failed... TODO: make this appear on screen to the user so they refresh
+											console.log("Failed to get json");
+										}
+									});
+								//var {{ $widget['filename_only']}}{{ $widget['random_id'] }} = new L.GeoJSON.AJAX("{{ route('profile.get-geojson', ['filename' => pathinfo($widget['filename'], PATHINFO_FILENAME)]) }}");
 								// Update the object we created earlier with an empty geojson, with the newly loaded ajax driven pull above
-								overlayMaps{{ $widget['random_id'] }}.{{ pathinfo($widget['filename'], PATHINFO_FILENAME); }} = {{ pathinfo($widget['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }};
+								//overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}} = {{ $widget['filename_only']}}{{ $widget['random_id'] }};
+								var markers{{ $widget['random_id'] }} = L.markerClusterGroup(overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}});
 
 								// Instantiate the map with the map layer, and our default geojson 
 								var map{{ $widget['random_id'] }} = L.map('{{ $widget['random_id'] }}', {
 									center: [0,0],
 									zoom: 14,
-									layers: [osm, {{ str_replace('-', '', pathinfo($widget['filename'], PATHINFO_FILENAME)); }}{{ $widget['random_id'] }}]
+									layers: [osm, overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}}]
 								});
+
 								const resizeObserver{{ $widget['random_id'] }} = new ResizeObserver(() => {
 									map{{ $widget['random_id'] }}.invalidateSize();
 								});
 								resizeObserver{{ $widget['random_id'] }}.observe(document.getElementById("{{ $widget['random_id'] }}"));
+
 								// Create the layers for display in the interface (top right icon)
 								var layerControl = L.control.layers(baseMaps, overlayMaps{{ $widget['random_id'] }}).addTo(map{{ $widget['random_id'] }});	
 								L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -113,19 +129,15 @@
 									id: 'mapbox/streets-v11',
 								}).addTo(map{{ $widget['random_id'] }});
 
-								// Use GeoJson to center map AFTER the ajax call to get the geojson
-								{{ pathinfo($widget['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }}.on('data:loaded', function() {
-									//Calculate the bounds of the geojson to target the map
-									var bounds = {{ pathinfo($widget['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }}.getBounds();
-									// Bind them to the map as a whole, so the map and geojson adjust
-									map{{ $widget['random_id'] }}.fitBounds(bounds);
-									// Add popup info for each layer that includes all values in the geojson properties
-									{{ pathinfo($widget['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }}.eachLayer(function (layer) {
-										layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
-									});
-								});
+
 								// Create a trigger when we add a new geojson overlay
 								map{{ $widget['random_id'] }}.on('overlayadd', onOverlayAdd);
+								map{{ $widget['random_id'] }}.on('overlayremove', onOverlayRemove);
+								function onOverlayRemove(e) {
+									var full_name = e.name;
+									markers{{ $widget['random_id'] }}.removeLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
+									//map{{ $widget['random_id'] }}.removeLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
+								}
 								// Function for the trigger above that hands us the overlay name that appears in the dropdown. Use this to query for the json data
 								function onOverlayAdd(e) {
 									// Add a spinner to the map while we wait
@@ -135,12 +147,15 @@
 									getJsonFromServer(`/profile/get-geojson/${full_name}`)
 										.then(data => { // We got the data without issue
 											if (data) {
-												// Adding the data. Have to segregate the overlayMaps from each map so they don't modify each other
-												overlayMaps{{ $widget['random_id'] }}[full_name].addData(data);
-												// Newly added layers have their popups added to the map using eachLayer instead of oneachfeature
+												overlayMaps{{ $widget['random_id'] }}[full_name] = L.geoJson(data);;
 												overlayMaps{{ $widget['random_id'] }}[full_name].eachLayer(function (layer) {
 													layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
 												});
+												markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
+												map{{ $widget['random_id'] }}.addLayer(markers{{ $widget['random_id'] }});
+												// Adding the data. Have to segregate the overlayMaps from each map so they don't modify each other
+												// Newly added layers have their popups added to the map using eachLayer instead of oneachfeature
+
 												map{{ $widget['random_id'] }}.spin(false); // Turn off the spin
 											} else { // We failed... TODO: make this appear on screen to the user so they refresh
 												console.log("Failed to get json");
