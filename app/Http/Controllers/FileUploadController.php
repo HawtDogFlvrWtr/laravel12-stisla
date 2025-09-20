@@ -19,6 +19,7 @@ class FileUploadController extends Controller
 	        'title' => 'required|max:255',
             'my_file' => 'required'
         ]);
+        $gdal_path = config('gdal_path');
         $file = $request->file('my_file');
         $title = $request->title;
         $userId = auth()->id(); // Assuming authenticated user
@@ -49,7 +50,7 @@ class FileUploadController extends Controller
                     $file_upload->title = $title;
                     $file_upload->save();
                 } elseif ($file_extension == 'gpkg' || $file_extension == 'geopkg') {
-                    exec("/bin/ogrinfo $filePath", $output_array); # Get All of the layers of the geopkg
+                    exec($gdal_path."ogrinfo $filePath", $output_array); # Get All of the layers of the geopkg
                     $layer = 1; 
                     foreach ($output_array as $line) { # Iterate lines until we find one that starts with a number \/
                         $firstChar = substr($line, 0, 1); # Get first char
@@ -65,7 +66,7 @@ class FileUploadController extends Controller
                             # Get his new basename with the layer
                             $geojson_filename_basename = basename($geojson_filename);
                             # Run the conversion prcess for each layer now that we know what layer name to provide the program. Make sure we set it to geojson ver EPSG:4326 or it'll be long/lat vs lat/long
-                            exec("/bin/ogr2ogr -f GeoJSON -t_srs EPSG:4326 ".$geojson_filename." $filePath '$final_output'", $convert_output);
+                            exec($gdal_path."ogr2ogr -f GeoJSON -t_srs EPSG:4326 ".$geojson_filename." $filePath '$final_output'", $convert_output);
                             # Like above for a native geojson, we need to open it to get the metadata needed later for charts
                             $read_file = Storage::get("$path/$geojson_filename_basename"); # Laravel's storage facade Storage::get($file)
                             $json_version = json_decode($read_file, true); # Put it in a pretty array
@@ -89,7 +90,7 @@ class FileUploadController extends Controller
 		            }
 		            Storage::delete([$filePath]); # Delete the original dpkg file because it's smelly
                } elseif ($file_extension == 'shp') { # TODO: We need to change upload to allow more than one file to support this because it needs a shx and shp file to work
-                    exec("/bin/ogrinfo $filePath", $output_array); # Get All of the layers of the shape file
+                    exec($gdal_path."ogrinfo $filePath", $output_array); # Get All of the layers of the shape file
                     $layer = 1; 
                     foreach ($output_array as $line) { # Iterate lines until we find one that starts with a number \/
                         $firstChar = substr($line, 0, 1); # Get first char
@@ -105,7 +106,7 @@ class FileUploadController extends Controller
                             # Get his new basename with the layer
                             $geojson_filename_basename = basename($geojson_filename);
                             # Run the conversion prcess for each layer now that we know what layer name to provide the program. Make sure we set it to geojson ver EPSG:4326 or it'll be long/lat vs lat/long
-                            exec("/bin/ogr2ogr -f GeoJSON -t_srs EPSG:4326 ".$geojson_filename." $filePath '$final_output'", $convert_output);
+                            exec($gdal_path."ogr2ogr -f GeoJSON -t_srs EPSG:4326 ".$geojson_filename." $filePath '$final_output'", $convert_output);
                             # Like above for a native geojson, we need to open it to get the metadata needed later for charts
                             $read_file = Storage::get("$path/$geojson_filename_basename"); # Laravel's storage facade Storage::get($file)
                             $json_version = json_decode($read_file, true); # Put it in a pretty array

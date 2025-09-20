@@ -51,11 +51,26 @@ class DashboardController extends Controller
 		        $get_widget['filename'] = preg_replace('/[^A-Za-z0-9\_\.]/', '', basename($get_map_filename));
                 $get_widget['filename_only'] = pathinfo($get_widget['filename'], PATHINFO_FILENAME);
             } elseif ($get_widget['widget_type_id'] == 5) { # TABLE!
+                $geojson = FileUpload::select('geojson')
+                    ->where('filename', '=', $get_map_filename)
+                    ->where('user_id', '=', $userId)
+                    ->get();
+                $json_version = json_decode($geojson->value('geojson'), true);
+                $table_keys = [];
                 foreach ($json_version['features'] as $feature) {
-                    $value_md[] = $feature['properties'];
+                    $value_prep = [];
+                    foreach($feature['properties'] as $key => $value) {
+                        if (!in_array($key, $table_keys)) {
+                            $table_keys[] = $key;
+                        }
+                        $value_prep[] = $value;
+                    }
+                    $value_md[] = $value_prep;
                 }
+                $get_widget['random_id'] = Str::random();
                 $get_widget['table'] = $value_md;
-            } elseif ($get_widget['widget_type_id'] > 1 && $get_widget['widget_type_id'] <= 4) { # Handle Charts
+                $get_widget['table_headings'] = $table_keys;
+             } elseif ($get_widget['widget_type_id'] > 1 && $get_widget['widget_type_id'] <= 4) { # Handle Charts
                 $values = [];
                 $geojson = FileUpload::select('geojson')
                     ->where('filename', '=', $get_map_filename)
@@ -130,7 +145,6 @@ class DashboardController extends Controller
                         "maintainAspectRatio" => false, // This is true by default
                     ]);
                 $get_widget['chart'] = $chart;
-            } else { # Handle Table widgets
             }
 	    }
 	    $get_widget_types = DashboardWidgetType::get(); // Get all widget types

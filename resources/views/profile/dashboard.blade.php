@@ -14,7 +14,9 @@
 	<div class="row mb-3">
 		<div class="col-md-12 flex-header">
 			<h3>{{ $dashboard_info['name'] }}</h3>
-			<a href="{{ route('profile.add-widgets', ['id' => $dashboard_info['id']]) }}" class="btn btn-primary float-right">Add Widget</a>
+			<div>
+				<a href="{{ route('profile.add-widgets', ['id' => $dashboard_info['id']]) }}" class="btn btn-primary">Add Widget</a>
+			</div>
 		</div>
 	</div>
     <div id="none_shall_pass" class="min-height=1000px;">
@@ -43,7 +45,7 @@
             @foreach ($widgets as $widget)
                 @if ($widget['widget_type_id'] == 1) <!-- I'm the map, i'm the map (he's the map, he's the map) I'M THE MAP!-->
                 <div class="col-md-4">
-                    <div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;">
+                    <div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
                         <div class="card-header flex-header">
 							{{$widget['name']}}
 							<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
@@ -116,7 +118,6 @@
 									zoom: 14,
 									layers: [osm, overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}}]
 								});
-
 								const resizeObserver{{ $widget['random_id'] }} = new ResizeObserver(() => {
 									map{{ $widget['random_id'] }}.invalidateSize();
 								});
@@ -133,6 +134,7 @@
 								// Create a trigger when we add a new geojson overlay
 								map{{ $widget['random_id'] }}.on('overlayadd', onOverlayAdd);
 								map{{ $widget['random_id'] }}.on('overlayremove', onOverlayRemove);
+								map{{ $widget['random_id'] }}.spin(true); // Turn off the spin
 								function onOverlayRemove(e) {
 									var full_name = e.name;
 									markers{{ $widget['random_id'] }}.removeLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
@@ -140,8 +142,6 @@
 								}
 								// Function for the trigger above that hands us the overlay name that appears in the dropdown. Use this to query for the json data
 								function onOverlayAdd(e) {
-									// Add a spinner to the map while we wait
-									map{{ $widget['random_id'] }}.spin(true);
 									var full_name = e.name;
 									// Pull geojson using the getJsonFromServer function above and add it to the overlayMap object for the correct key
 									getJsonFromServer(`/profile/get-geojson/${full_name}`)
@@ -155,7 +155,9 @@
 												map{{ $widget['random_id'] }}.addLayer(markers{{ $widget['random_id'] }});
 												// Adding the data. Have to segregate the overlayMaps from each map so they don't modify each other
 												// Newly added layers have their popups added to the map using eachLayer instead of oneachfeature
-
+												var bounds = map{{ $widget['random_id'] }}.getBounds();
+												// Bind them to the map as a whole, so the map and geojson adjust
+												map{{ $widget['random_id'] }}.fitBounds(bounds);
 												map{{ $widget['random_id'] }}.spin(false); // Turn off the spin
 											} else { // We failed... TODO: make this appear on screen to the user so they refresh
 												console.log("Failed to get json");
@@ -166,13 +168,13 @@
                         </div>
                     </div>
                 </div>
-				@else
+				@elseif ($widget['widget_type_id'] > 1 && $widget['widget_type_id'] <= 4)
 					@if ($widget['widget_type_id'] == 4) <!-- I'm a wide chart -->
 					<div class="col-md-3">
 					@else
 					<div class="col-md-6">
 					@endif
-						<div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;">
+						<div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
 							<div class="card-header flex-header">
 								{{$widget['name']}}
 								<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
@@ -187,6 +189,45 @@
 									@else
 									<x-chartjs-component :chart="$widget['chart']" />
 									@endif
+								</div>
+							</div>
+						</div>
+					</div>
+				@else <!-- Table -->
+					<div  class="col-md-12">
+						<div id="no-resize" class="card">
+							<div class="card-header flex-header">
+								{{$widget['name']}}
+								<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
+									@csrf
+									<button type="submit" class="btn btn-secondary rounded-sm fas fa-trash"></button>
+								</form>
+							</div>
+							<div class="card-body">
+								<div class="table-responsive">
+									<table id="table-{{ $widget['random_id'] }}" class="table table-striped table-border compact" style="z-index: 10;">
+										<thead>
+											<tr>
+												@foreach ($widget['table_headings'] as $heading)
+												<th>{{ $heading }}</th>
+												@endforeach
+											</tr>
+										</thead>
+										<tbody>
+											@foreach ($widget['table'] as $key)
+											<tr>
+												@foreach($key as $value)
+													<td>{{ $value }}</td>
+												@endforeach
+											</tr>
+											@endforeach
+										</tbody>
+									</table>
+									<script>
+										document.addEventListener("DOMContentLoaded", function() {
+											$("#table-{{ $widget['random_id'] }}").DataTable();
+										});
+									</script>
 								</div>
 							</div>
 						</div>
@@ -216,7 +257,8 @@
 					positions[this.id].width = ui.size.width;
 					positions[this.id].height = ui.size.height;
 					localStorage.positions = JSON.stringify(positions);
-				}
+				},
+				cancel: "#no-resize"
 			});
 			var sPositions = localStorage.positions || "{}";
 			var positions = JSON.parse(sPositions);
@@ -224,6 +266,7 @@
 			$.each(positions, function(id, pos) {
 				$("#" + id).css(pos);
 			});
+
 
 			// Handle delete alert
 			 $("[id^='delete-']").on('submit', function(event) {
