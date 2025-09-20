@@ -269,7 +269,7 @@
 				cursor: "grabbing", // Change the cursor to the move symbol
 				stack: ".card", // What items to change z-index on so they don't interact
 				containment: "#none_shall_pass", // Make sure you can't put the card outside of this div
-				cancel: ".no-sort", // Make sure we don't attempt to move the card when we're actually in the map panning
+				cancel: ".no-sort, :input, .dataTables_length select", // Make sure we don't attempt to move the card when we're actually in the map panning
 				stop: function(event, ui) {
 					var positions = JSON.parse(localStorage.positions || "{}");
 					positions[this.id] = ui.position; // Store by element ID

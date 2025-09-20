@@ -19,12 +19,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     <!-- Datatables CSS -->
-	<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.min.css" crossorigin="" />
+	<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.jqueryui.min.css" crossorigin="" />
 
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Custom CSS Files -->
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/nucleo-icons.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/black-dashboard.css?v=1.1.1') }}"  />
     <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet" />
@@ -59,6 +60,7 @@
     <!-- jQuery and Popper.js (required for Bootstrap 4) -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- Bootstrap JS (Bootstrap 4) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -69,8 +71,9 @@
 
     <script src="{{ asset('library/moment/min/moment.min.js') }}"></script>
     <script src="{{ asset('js/black-dashboard.min.js?v=1.1.1') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/4.0.0/js/jasny-bootstrap.min.js" integrity="sha512-T+qL8JzVjquTv+yKR64v+58O+GVCe7A68gbJTzFVs76I7iAcgwisXKyOTaeKZaekcHeiG65p48NDqcMmPgnvIA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    <!-- Datatables JS Library -->
-	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/4.0.0/js/jasny-bootstrap.min.js" integrity="sha512-T+qL8JzVjquTv+yKR64v+58O+GVCe7A68gbJTzFVs76I7iAcgwisXKyOTaeKZaekcHeiG65p48NDqcMmPgnvIA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    
+    <!-- Datatables JS Library -->
+    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js" integrity="sha512-aDicMCy0pnN7hqhfSgvagdrS85SkNmmqWTkcQaGzlvW7UMWcCZ8WVYz7PLICHB6DXDprRlzuu4Od4MyXQ2spQw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- Toastr Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -78,11 +81,10 @@
     <!-- Sweet Alerts 2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- Template JS Files -->
-    <script src="{{ asset('js/stisla.js') }}"></script>
-    <script src="{{ asset('js/scripts.js') }}"></script>
-    <script src="{{ asset('js/custom.js') }}"></script>
     <script>
         $(document).ready(function() {
         $().ready(function() {

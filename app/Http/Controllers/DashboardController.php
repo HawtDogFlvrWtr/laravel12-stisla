@@ -52,15 +52,19 @@ class DashboardController extends Controller
 		        $get_widget['filename'] = preg_replace('/[^A-Za-z0-9\_\.]/', '', basename($get_map_filename));
                 $get_widget['filename_only'] = pathinfo($get_widget['filename'], PATHINFO_FILENAME);
             } elseif ($get_widget['widget_type_id'] == 5) { # TABLE!
-                $geojson = FileUpload::select('geojson')
+                $table_record = FileUpload::select('geojson')
                     ->where('filename', '=', $get_map_filename)
                     ->where('user_id', '=', $userId)
                     ->get();
-                $json_version = json_decode($geojson->value('geojson'), true);
+                $json_version = json_decode($table_record->value('geojson'), true);
                 $table_keys = [];
                 foreach ($json_version['features'] as $feature) {
                     $value_prep = [];
+                    $feature['properties'] = array_reverse($feature['properties']);
                     foreach($feature['properties'] as $key => $value) {
+                        if (!in_array($key, $decode_metadata['table_columns'])){
+                            continue;
+                        }
                         if (!in_array($key, $table_keys)) {
                             $table_keys[] = $key;
                         }
@@ -174,7 +178,7 @@ class DashboardController extends Controller
                 ->where('user_id', '=', Auth::id())
                 ->where('filename', '=', $request->map_filename)
                 ->get();
-            if ($request->widget_type > 1 && $request->widget_type <= 4) { # Give our own name for the widget if they leave it blank
+            if ($request->widget_type > 1 && $request->widget_type < 5) { # Give our own name for the widget if they leave it blank
                 if ($request->y_axis == 'COUNT') { # If it's count, don't include SUM 
                     $widget_name = "$request->y_axis BY $request->x_axis ";
                 } else { 
@@ -195,7 +199,13 @@ class DashboardController extends Controller
         $widget->widget_type_id = $request->widget_type;
         if ($request->widget_type == 1) { #  Maps
             $metadata = json_encode(['map_filename' => $request->map_filename]);
-        } elseif ($request->widget_type > 1){ # handle all charts
+        } elseif ($request->widget_type == 5) {
+            $metadata_columns = [];
+            foreach ($request->table_columns as $table_column) {
+                $metadata_columns[] = $table_column;
+            }
+            $metadata = json_encode(['map_filename' => $request->map_filename, 'table_columns' => $metadata_columns]);
+        } elseif ($request->widget_type > 1 && $request->widget_type < 5){ # handle all charts
             $metadata = json_encode(['x_axis' => $request->x_axis, 'y_axis' => $request->y_axis, 'map_filename' => $request->map_filename]);
         }
         $widget->metadata = $metadata;

@@ -44,6 +44,12 @@
                                     <option value="">Loading..</option>
 			                    </select>
 			                </div>
+                            <div id="table_column" class="form-group" style='display:none;'>
+                                <label for="table_columns">Select the properties you want to appear on the table</label>
+                                <select id="table_columns" style="width:100%" class="form-control mb-2" name="table_columns[]" multiple="multiple">
+                                    <option value="">Loading..</option>
+                                </select>
+                            </div>
                             <button class="btn btn-warning" type="submit">Submit</button>
                         </div>
                     </form>
@@ -84,19 +90,52 @@ $(document).ready(function() { //  Has the DOM loaded?
             }
         }); 
     }
+    function update_table_select(filename) {
+        $.ajax({
+           type: 'POST',
+           url: '/profile/get-file-metadata',
+           data: { 'filename': filename },
+           success: function(response) {
+	            $("#table_columns").empty(); // Nuke the current select options
+                // Iterate x axis options
+                $.each(response.x_axis, function(key, value) {
+                    $('#table_columns').append('<option value="' + value + '">' + value + '</option>');
+                });
+                $('#table_columns').trigger('change.select2'); 
+	        },
+            error: function(error) {
+                console.error(error);
+            }
+        }); 
+    }
     $('#widget_type').change(function() {
         if ($(this).val() != 1 && $(this).val() != 5) { // if the value changes from map to a chart widget, show x and y axis forms
+            $("#table_column").hide("slow");
             $("#chart_forms").show("slow");
             var mapfilename = $('#map_filename').val()
             update_axis_select(mapfilename);
-        } else {
+        } else if ($(this).val() == 5) { // Table
             $("#chart_forms").hide("slow");
+            $("#table_column").show("slow");
+            var mapfilename = $('#map_filename').val()
+            update_table_select(mapfilename);
+        } else { // Others
+            $("#chart_forms").hide("slow");
+            $("#table_column").hide("slow");
         }
     });
     $('#map_filename').change(function() { // check for changing map filename
         $("#x_axis").empty().append('<option value="">Loading..</option>'); // Nuke the current select options
         $("#y_axis").empty().append('<option value="">Loading..</option>'); // Nuke the current select options
         update_axis_select($(this).val());
+    })
+    $('#map_filename').change(function() { // check for changing map filename
+        $("#table_columns").empty().append('<option value="">Loading..</option>'); // Nuke the current select options
+        update_table_select($(this).val());
+    });
+
+    $('#table_columns').select2({
+        closeOnSelect: false
     });
 });
 </script>
