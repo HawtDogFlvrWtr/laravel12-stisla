@@ -1,37 +1,60 @@
 @auth
-<div class="navbar-bg"></div>
-<nav class="navbar navbar-expand-lg main-navbar">
-    <!-- Sidebar Toggle Button on the Left -->
-    <a href="#" data-toggle="sidebar" class="nav-link nav-link-lg">
-        <i class="fas fa-bars mt-2"></i>
-    </a>
-
-    <!-- Right Side Navbar Items -->
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent">
+<div class="container-fluid">
+    <div class="navbar-wrapper">
+    <div class="navbar-minimize d-inline">
+        <button class="minimize-sidebar btn btn-link btn-just-icon" rel="tooltip" data-original-title="Sidebar toggle" data-placement="right">
+        <i class="tim-icons icon-align-center visible-on-sidebar-regular"></i>
+        <i class="tim-icons icon-bullet-list-67 visible-on-sidebar-mini"></i>
+        </button>
+    </div>
+    <div class="navbar-toggle d-inline">
+        <button type="button" class="navbar-toggler">
+        <span class="navbar-toggler-bar bar1"></span>
+        <span class="navbar-toggler-bar bar2"></span>
+        <span class="navbar-toggler-bar bar3"></span>
+        </button>
+    </div>
+    <a class="navbar-brand" href="javascript:void(0)">@yield('title')</a>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-bar navbar-kebab"></span>
+    <span class="navbar-toggler-bar navbar-kebab"></span>
+    <span class="navbar-toggler-bar navbar-kebab"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navigation">
     <ul class="navbar-nav ml-auto">
-        <li class="dropdown">
-            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-                <img alt="image" src="{{ asset('img/avatar/avatar-1.png') }}" class="rounded-circle mr-1">
-                <div class="d-sm-none d-lg-inline-block">
-                    Hi, {{ substr(auth()->user()->name, 0, 10) }}
-                </div>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right">
-                <div class="dropdown-title">
-                    Hello, {{ substr(auth()->user()->name, 0, 10) }}
-                </div>
-                <a class="dropdown-item has-icon edit-profile" href="{{ route('profile.edit') }}">
-                    <i class="fa fa-user"></i> Edit Profile
-                </a>
-                <div class="dropdown-divider"></div>
+        <li class="dropdown nav-item">
+        <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+            <div class="photo">
+            <img src="/img/avatar/avatar-1.png" alt="Profile Photo">
+            </div>
+            <b class="caret d-none d-lg-block d-xl-block"></b>
+        </a>
+        <ul class="dropdown-menu dropdown-navbar">
+            <li class="nav-link">
+            <a href="javascript:void(0)" class="nav-item dropdown-item">Profile</a>
+            </li>
+            <li class="nav-link">
+            <a href="javascript:void(0)" class="nav-item dropdown-item">Settings</a>
+            </li>
+            <li class="dropdown-divider"></li>
+            <li class="nav-link">
                 <a href="{{ route('logout') }}" class="dropdown-item has-icon text-danger"
                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                    Logout
                 </a>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                     @csrf
                 </form>
-            </div>
+            </li>
+        </ul>
         </li>
+        <li class="separator d-lg-none"></li>
     </ul>
+    </div>
+</div>
 </nav>
+
 @endauth

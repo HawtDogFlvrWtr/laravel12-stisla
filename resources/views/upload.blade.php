@@ -1,7 +1,8 @@
 @extends('layouts.app')
+@section('title', "Upload GeoFiles")
 
 @section('content')
-<div class="main-content">
+<div class="content">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -24,7 +25,7 @@
                                     <td>
                                         <form id="delete-{{ $file['id'] }}" action="{{ route('profile.delete-geojson', ['id' => $file['id']]) }}" method="POST" style="display: inline-block;">
                                             @csrf
-                                            <button type="submit" class="btn btn-secondary rounded-sm fas fa-trash"></button>
+                                            <button type="submit" class="btn btn-sm btn-warning rounded-sm fas fa-trash"></button>
                                         </form>
                                     </td>
                                 </tr>
@@ -44,15 +45,23 @@
                 @enderror
                 <div class="card-header">{{ __('Upload a GEO file') }}</div>
                 <div class="card-body">
-                    <form action="{{ route('profile.upload') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('upload') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
                             <label for="title">File Title</label>
                             <input type="title" class="form-control" id="title" name="title" aria-describedby="titleHelp" placeholder="Enter title" value="" required>
-                            <small id="titleHelp" class="form-text text-muted pb-5">This is where you make a title for the file you're uploading</small>
-                            <input type="file" name="my_file" required>
-                            <button type="submit">Upload</button>
+                            <div class="fileinput fileinput-new" data-provides="fileinput">
+                                <span class="btn btn-sm btn-outline-secondary btn-file">
+                                    <span class="fileinput-new"><i class="fas fa-file pr-2"></i>Select file</span>
+                                    <span class="fileinput-exists">Change</span>
+                                    <input type="file" name="my_file" multiple>
+                                </span>
+                                <span class="fileinput-filename"></span>
+                                <a href="#" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">&times;</a>
+                            </div>
                         </div>
+                        <button class="btn btn-sm btn-warning" type="submit">Upload</button>
+
                     </form>
                 </div>
             </div>

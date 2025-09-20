@@ -7,7 +7,7 @@
 @endpush
 
 @section('content')
-<div class="main-content">
+<div class="content">
     <section class="section">
         <div class="section-header">
             <h1>Form Example</h1>

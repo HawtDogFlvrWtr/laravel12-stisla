@@ -55,11 +55,6 @@ class ProfileController extends Controller
         return back()->with('status', 'Password Successfully Changed!');
 
     }
-
-    public function show_files() {
-        $my_files = FileUpload::select('id', 'title', 'filename', 'md5', 'properties_metadata')->where('user_id', '=', Auth::id())->get();
-        return view('profile.upload', ['files' => $my_files]);
-    }
    
     public function add_dashboard(Request $request)
     {

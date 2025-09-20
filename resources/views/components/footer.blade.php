@@ -1,8 +1,11 @@
-<footer class="main-footer">
-    <div class="footer-left">
-        &copy; 2025 Salisbury University
+<footer class="footer">
+<div class="container-fluid">
+    <div class="copyright">
+    ©
+    <script>
+        document.write(new Date().getFullYear())
+    </script>
+    <a href="https://www.salisbury.edu/" target="_blank">Salisbury University</a>
     </div>
-    <div class="footer-right">
-        1.0.0
-    </div>
+</div>
 </footer>

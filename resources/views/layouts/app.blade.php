@@ -11,7 +11,6 @@
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
     <!-- Bootstrap CSS (Bootstrap 4) -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -26,30 +25,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Custom CSS Files -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/components.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/skins/reverse.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/nucleo-icons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/black-dashboard.css?v=1.1.1') }}"  />
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/4.0.0/css/jasny-bootstrap.min.css" integrity="sha512-VUj0sZbQFPixq7NJ6ioBRK/scakfsdlKl647mLmZaZHWPgpnrWvIfy80/QF3q1l+kozBc8IHrTEoiZY25PSUTw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Additional CSS (if any) -->
     @stack('css')
 </head>
-<body class="sidebar-mini">
-    <div id="app">
-        <div class="main-wrapper">
-            <!-- Header -->
-            @include('components.header')
-
-            <!-- Sidebar -->
+<body class="sidebar-mini white-content">
+  <div class="wrapper">
+    <div class="navbar-minimize-fixed">
+      <button class="minimize-sidebar btn btn-link btn-just-icon">
+        <i class="tim-icons icon-align-center visible-on-sidebar-regular text-muted"></i>
+        <i class="tim-icons icon-bullet-list-67 visible-on-sidebar-mini text-muted"></i>
+      </button>
+    </div>
+                <!-- Sidebar -->
             @include('components.sidebar')
+            <div class="main-panel" data="orange">
+                <!-- Header -->
+                @include('components.header')
 
-            <!-- Main Content -->
-            <div class="main-content">
+                <!-- Main Content -->
                 @yield('content')
-            </div>
 
-            <!-- Footer -->
-            @include('components.footer')
+                <!-- Footer -->
+                @include('components.footer')
+            </div>
         </div>
     </div>
 
@@ -63,8 +66,8 @@
     <!-- Custom JS Libraries -->
     <script src="{{ asset('library/jquery.nicescroll/dist/jquery.nicescroll.min.js') }}"></script>
     <script src="{{ asset('library/moment/min/moment.min.js') }}"></script>
-
-    <!-- Datatables JS Library -->
+    <script src="{{ asset('js/black-dashboard.min.js?v=1.1.1') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/4.0.0/js/jasny-bootstrap.min.js" integrity="sha512-T+qL8JzVjquTv+yKR64v+58O+GVCe7A68gbJTzFVs76I7iAcgwisXKyOTaeKZaekcHeiG65p48NDqcMmPgnvIA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    <!-- Datatables JS Library -->
 	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- Toastr Library -->
@@ -78,6 +81,117 @@
     <script src="{{ asset('js/stisla.js') }}"></script>
     <script src="{{ asset('js/scripts.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+        $().ready(function() {
+            $sidebar = $('.sidebar');
+            $navbar = $('.navbar');
+            $main_panel = $('.main-panel');
+
+            $full_page = $('.full-page');
+
+            $sidebar_responsive = $('body > .navbar-collapse');
+            sidebar_mini_active = true;
+            white_color = false;
+
+            window_width = $(window).width();
+
+            fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
+
+
+
+            $('.fixed-plugin a').click(function(event) {
+            if ($(this).hasClass('switch-trigger')) {
+                if (event.stopPropagation) {
+                event.stopPropagation();
+                } else if (window.event) {
+                window.event.cancelBubble = true;
+                }
+            }
+            });
+
+            $('.fixed-plugin .background-color span').click(function() {
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
+
+            var new_color = $(this).data('color');
+
+            if ($sidebar.length != 0) {
+                $sidebar.attr('data', new_color);
+            }
+
+            if ($main_panel.length != 0) {
+                $main_panel.attr('data', new_color);
+            }
+
+            if ($full_page.length != 0) {
+                $full_page.attr('filter-color', new_color);
+            }
+
+            if ($sidebar_responsive.length != 0) {
+                $sidebar_responsive.attr('data', new_color);
+            }
+            });
+
+            $('.switch-sidebar-mini input').on("switchChange.bootstrapSwitch", function() {
+            var $btn = $(this);
+
+            if (sidebar_mini_active == true) {
+                $('body').removeClass('sidebar-mini');
+                sidebar_mini_active = false;
+                blackDashboard.showSidebarMessage('Sidebar mini deactivated...');
+            } else {
+                $('body').addClass('sidebar-mini');
+                sidebar_mini_active = true;
+                blackDashboard.showSidebarMessage('Sidebar mini activated...');
+            }
+
+            // we simulate the window Resize so the charts will get updated in realtime.
+            var simulateWindowResize = setInterval(function() {
+                window.dispatchEvent(new Event('resize'));
+            }, 180);
+
+            // we stop the simulation of Window Resize after the animations are completed
+            setTimeout(function() {
+                clearInterval(simulateWindowResize);
+            }, 1000);
+            });
+
+            $('.switch-change-color input').on("switchChange.bootstrapSwitch", function() {
+            var $btn = $(this);
+
+            if (white_color == true) {
+
+                $('body').addClass('change-background');
+                setTimeout(function() {
+                $('body').removeClass('change-background');
+                $('body').removeClass('white-content');
+                }, 900);
+                white_color = false;
+            } else {
+
+                $('body').addClass('change-background');
+                setTimeout(function() {
+                $('body').removeClass('change-background');
+                $('body').addClass('white-content');
+                }, 900);
+
+                white_color = true;
+            }
+
+
+            });
+
+            $('.light-badge').click(function() {
+            $('body').addClass('white-content');
+            });
+
+            $('.dark-badge').click(function() {
+            $('body').removeClass('white-content');
+            });
+        });
+        });
+    </script>
 
     <!-- Additional JS (if any) -->
     @stack('scripts')

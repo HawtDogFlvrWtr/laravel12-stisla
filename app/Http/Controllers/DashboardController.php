@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str; //for Str::random()
 use IcehouseVentures\LaravelChartjs\Facades\Chartjs;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -149,7 +150,7 @@ class DashboardController extends Controller
 	    }
 	    $get_widget_types = DashboardWidgetType::get(); // Get all widget types
         $array = ['dashboard_info' => $dashboard_info[0], 'widgets' => $get_widgets, 'widget_types' => $get_widget_types, 'all_geojsons' => $geojson_array];
-        return view('profile.dashboard', $array);
+        return view('dashboard', $array);
     }
 
     public function add_widgets($id) { // Show the add widgets page
@@ -226,5 +227,18 @@ class DashboardController extends Controller
             ->where('dashboard_id', '=', $request->id);
         $widgets_to_del->delete();
         return redirect()->route('home');
+    }
+
+    public function index() {
+        $my_dashboards = Dashboard::where('user_id', '=', Auth::id())->get();
+        $get_widgets = DashboardWidget::select('dashboard_id', DB::raw('count(*) as d_count'))
+            ->where('user_id', '=', Auth::id())
+            ->groupBy('dashboard_id')
+            ->get();
+        $widget_counts = [];
+        foreach($get_widgets as $widget) {
+            $widget_counts[$widget['dashboard_id']] = $widget['d_count'];
+        }
+        return view('profile.dashboards', ['dashboards' => $my_dashboards, 'widget_counts' => $widget_counts]);
     }
 }

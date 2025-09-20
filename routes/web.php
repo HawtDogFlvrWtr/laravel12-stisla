@@ -12,16 +12,17 @@ Auth::routes();
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/profile/dashboards', [App\Http\Controllers\DashboardController::class, 'index'])->name('profile.dashboards');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/profile/upload', [ProfileController::class, 'show_files'])->name('profile.upload');
-    Route::post('/profile/upload', [FileUploadController::class, 'upload']);
+    Route::get('/upload', [FileUploadController::class, 'show_files'])->name('get_upload');
+    Route::post('/upload', [FileUploadController::class, 'upload'])->name('upload');
     Route::get('/profile/change-password', [ProfileController::class, 'changepassword'])->name('profile.change-password');
     Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
     Route::get('/blank-page', [App\Http\Controllers\ProfileController::class, 'blank'])->name('blank');
     Route::post('/profile/add-dashboard', [App\Http\Controllers\ProfileController::class, 'add_dashboard']);
     Route::get('/profile/add-dashboard', function () { return view('profile.add-dashboard');})->name('profile.add-dashboard');
-    Route::get('/profile/dashboard/{id}', [App\Http\Controllers\DashboardController::class, 'show_dashboard'])->name('profile.dashboard');
+    Route::get('/dashboard/{id}', [App\Http\Controllers\DashboardController::class, 'show_dashboard'])->name('dashboard');
     Route::get('/profile/add-widgets/{id}', [App\Http\Controllers\DashboardController::class, 'add_widgets'])->name('profile.add-widgets');
     Route::post('/profile/add-widgets/{id}', [App\Http\Controllers\DashboardController::class, 'add_widget']);
     Route::post('/profile/delete-widget/{id}', [App\Http\Controllers\DashboardController::class, 'delete_widget'])->name('profile.delete-widget');

@@ -11,7 +11,12 @@ use App\Models\FileUpload;
 
 
 class FileUploadController extends Controller
-{
+
+{    public function show_files() {
+        $my_files = FileUpload::select('id', 'title', 'filename', 'md5', 'properties_metadata')->where('user_id', '=', Auth::id())->get();
+        return view('upload', ['files' => $my_files]);
+    }
+
     public function upload(Request $request)
     {
         ini_set('max_execution_time', 0);
@@ -142,6 +147,6 @@ class FileUploadController extends Controller
     public function delete(Request $request) {
         $del_id = FileUpload::where('user_id', '=', Auth::id())->where('id', '=', $request->id);
         $del_id->delete();
-        return redirect()->route('profile.upload');
+        return redirect()->route('upload');
     }
 }

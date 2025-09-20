@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $dashboard_info['name'])
+@section('title', $dashboard_info['name']." Dashboard")
 
 @push('css')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -11,11 +11,11 @@
 @endpush
 
 @section('content')
-	<div class="row mb-3">
+<div class="content">
+	<div class="row mb-1">
 		<div class="col-md-12 flex-header">
-			<h3>{{ $dashboard_info['name'] }}</h3>
 			<div>
-				<a href="{{ route('profile.add-widgets', ['id' => $dashboard_info['id']]) }}" class="btn btn-primary">Add Widget</a>
+				<a href="{{ route('profile.add-widgets', ['id' => $dashboard_info['id']]) }}" class="btn btn-sm btn-warning float-right">+ Widget</a>
 			</div>
 		</div>
 	</div>
@@ -46,12 +46,20 @@
                 @if ($widget['widget_type_id'] == 1) <!-- I'm the map, i'm the map (he's the map, he's the map) I'M THE MAP!-->
                 <div class="col-md-4">
                     <div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
-                        <div class="card-header flex-header">
-							{{$widget['name']}}
-							<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
-								@csrf
-								<button type="submit" class="btn btn-secondary rounded-sm fas fa-trash"></button>
-							</form>
+						<div class="card-header">
+							<div class="row">
+								<div class="col-sm-10 text-left">
+									<h2 class="card-title">{{$widget['name']}}</h2>
+								</div>
+								<div class="col-sm-2">
+									<div class="btn-group float-right">
+										<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
+											@csrf
+											<button type="submit" class="btn btn-sm btn-warning rounded-sm fas fa-trash float-right"></button>
+										</form>
+									</div>
+								</div>
+							</div>
 						</div>
                         <div class="card-body" style="height:400px;">
 			    			<div class="no-sort" id="{{ $widget['random_id'] }}" style="height:100%;"></div>
@@ -174,13 +182,21 @@
 					@else
 					<div class="col-md-6">
 					@endif
-						<div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
-							<div class="card-header flex-header">
-								{{$widget['name']}}
-								<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
-									@csrf
-									<button type="submit" class="btn btn-secondary rounded-sm fas fa-trash"></button>
-								</form>
+						<div id="sortable-cards{{ $widget['id'] }}" class="card card-chart" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
+							<div class="card-header">
+								<div class="row">
+									<div class="col-sm-10 text-left">
+										<h2 class="card-title">{{$widget['name']}}</h2>
+									</div>
+									<div class="col-sm-2">
+										<div class="btn-group float-right">
+											<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
+												@csrf
+												<button type="submit" class="btn btn-sm btn-warning rounded-sm fas fa-trash float-right"></button>
+											</form>
+										</div>
+									</div>
+								</div>
 							</div>
 							<div class="card-body">
 								<div class="no-sort" style="height: 100%; width: 100%;">
@@ -196,12 +212,20 @@
 				@else <!-- Table -->
 					<div  class="col-md-12">
 						<div id="no-resize" class="card">
-							<div class="card-header flex-header">
-								{{$widget['name']}}
-								<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
-									@csrf
-									<button type="submit" class="btn btn-secondary rounded-sm fas fa-trash"></button>
-								</form>
+							<div class="card-header">
+								<div class="row">
+									<div class="col-sm-10 text-left">
+										<h2 class="card-title">{{$widget['name']}}</h2>
+									</div>
+									<div class="col-sm-2">
+										<div class="btn-group float-right">
+											<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
+												@csrf
+												<button type="submit" class="btn btn-sm btn-warning rounded-sm fas fa-trash"></button>
+											</form>
+										</div>
+									</div>
+								</div>
 							</div>
 							<div class="card-body">
 								<div class="table-responsive">
@@ -236,6 +260,7 @@
             @endforeach
         </div>
     </div>
+</div>
 	<script>
 		// That sweet sweet moving cards trick
 		document.addEventListener("DOMContentLoaded", function() {

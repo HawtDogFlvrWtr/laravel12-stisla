@@ -2,9 +2,10 @@
     $dashboard_name = $dashboard_info['name'];
 @endphp
 @extends('layouts.app')
+@section('title', "Add Widget")
 
 @section('content')
-<div class="main-content">
+<div class="content">
     <div class="row justify-content-center">
         <div class="col-md-4">
             <div class="card">
@@ -43,7 +44,7 @@
                                     <option value="">Loading..</option>
 			                    </select>
 			                </div>
-                            <button class="btn btn-primary" type="submit">Submit</button>
+                            <button class="btn btn-warning" type="submit">Submit</button>
                         </div>
                     </form>
                 </div>

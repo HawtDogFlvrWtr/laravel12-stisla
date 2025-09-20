@@ -1,7 +1,8 @@
 @extends('layouts.app')
+@section('title', "Add Dashboard")
 
 @section('content')
-<div class="main-content">
+<div class="content">
     <div class="row justify-content-center">
         <div class="col-md-4">
             <div class="card">
@@ -19,7 +20,7 @@
                             <label for="name">Dashboard Name</label>
                             <input type="text" class="form-control" id="name" name="name" aria-describedby="titleHelp" placeholder="Enter name">
                             <small id="titleHelp" class="form-text text-muted pb-5">This is where you set the title for your new dashboard</small>
-                            <button class="btn btn-primary" type="submit">Submit</button>
+                            <button class="btn btn-warning" type="submit">Submit</button>
                         </div>
                     </form>
                 </div>

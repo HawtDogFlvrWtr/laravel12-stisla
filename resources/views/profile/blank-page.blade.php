@@ -10,7 +10,7 @@
 @endpush
 
 @section('content')
-    <div class="main-content">
+    <div class="content">
         <div class="row">
             @foreach ($maps as $map)
             <div class="col-md-4">
