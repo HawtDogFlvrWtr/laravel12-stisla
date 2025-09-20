@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $dashboard_info['name']." Dashboard")
+@section('title', $dashboard_info['name'])
 
 @push('css')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
