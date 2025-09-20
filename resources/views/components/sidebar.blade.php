@@ -78,8 +78,8 @@
                     @endphp
                     <li class="{{ Request::is($url) ? 'active' : '' }}">
                         <a href="/dashboard/{{ $dashboard['id'] }}">
-                        <span class="sidebar-mini-icon">{{ $dashboard['name'][0] }}</span>
-                        <span class="sidebar-normal"> {{ $dashboard['name'] }} </span>
+                        <span class="sidebar-mini-icon mt-1">{{ $dashboard['name'][0] }}</span>
+                        <span class="sidebar-normal mt-1"> {{ $dashboard['name'] }} </span>
                         </a>
                     </li>
                     @endforeach

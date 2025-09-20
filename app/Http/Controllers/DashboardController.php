@@ -200,13 +200,13 @@ class DashboardController extends Controller
         }
         $widget->metadata = $metadata;
         $widget->save();
-        return redirect()->route('profile.dashboard', ['id' => $id]);
+        return redirect()->route('dashboard', ['id' => $id]);
     }
 
     public function delete_widget(Request $request) {
         $del_id = DashboardWidget::where('user_id', '=', Auth::id())->where('id', '=', $request->id);
         $del_id->delete();
-        return redirect()->route('profile.dashboard', ['id' => $request->dash_id]);
+        return redirect()->route('dashboard', ['id' => $request->dash_id]);
     }
 
     public function get_geojson($filename) {
@@ -226,7 +226,7 @@ class DashboardController extends Controller
         $widgets_to_del = DashboardWidget::where('user_id', '=', Auth::id())
             ->where('dashboard_id', '=', $request->id);
         $widgets_to_del->delete();
-        return redirect()->route('home');
+        return redirect()->route('profile.dashboards');
     }
 
     public function index() {

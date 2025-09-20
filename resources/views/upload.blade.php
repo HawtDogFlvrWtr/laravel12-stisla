@@ -51,7 +51,7 @@
                             <label for="title">File Title</label>
                             <input type="title" class="form-control" id="title" name="title" aria-describedby="titleHelp" placeholder="Enter title" value="" required>
                             <div class="fileinput fileinput-new" data-provides="fileinput">
-                                <span class="btn btn-sm btn-outline-secondary btn-file">
+                                <span class="btn btn-sm btn-warning btn-file">
                                     <span class="fileinput-new"><i class="fas fa-file pr-2"></i>Select file</span>
                                     <span class="fileinput-exists">Change</span>
                                     <input type="file" name="my_file" multiple>
@@ -60,7 +60,7 @@
                                 <a href="#" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">&times;</a>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-warning" type="submit">Upload</button>
+                        <button class="btn btn-sm btn-warning float-right" type="submit">Upload</button>
 
                     </form>
                 </div>

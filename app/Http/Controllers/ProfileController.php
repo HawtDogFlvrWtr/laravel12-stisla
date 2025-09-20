@@ -71,7 +71,7 @@ class ProfileController extends Controller
         $dashboard->name = $request->name;
         $dashboard->save();
         
-        return redirect()->route('profile.dashboard', ['id' => $dashboard->id]); # Get the new dashboard id we made and go there.
+        return redirect()->route('dashboard', ['id' => $dashboard->id]); # Get the new dashboard id we made and go there.
     }
 
     public function get_file_metadata(Request $request) {
