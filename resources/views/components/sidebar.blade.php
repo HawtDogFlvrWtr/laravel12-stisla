@@ -9,7 +9,7 @@
             EZD
         </a>
         <a href="javascript:void(0)" class="simple-text logo-normal">
-            GEO Dashboards
+            Mapping Made Simple
         </a>
     </div>
     <ul class="nav">
