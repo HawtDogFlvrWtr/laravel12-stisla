@@ -229,7 +229,7 @@
 							</div>
 							<div class="card-body">
 								<div class="table-responsive">
-									<table id="table-{{ $widget['random_id'] }}" class="table table-striped table-border compact" style="z-index: 10;">
+									<table id="table-{{ $widget['random_id'] }}" class="table table-striped" style="z-index: 10;">
 										<thead>
 											<tr>
 												@foreach ($widget['table_headings'] as $heading)

@@ -60,7 +60,7 @@ class DashboardController extends Controller
                 $table_keys = [];
                 foreach ($json_version['features'] as $feature) {
                     $value_prep = [];
-                    $feature['properties'] = array_reverse($feature['properties']);
+                    #$feature['properties'] = array_reverse($feature['properties']);
                     foreach($feature['properties'] as $key => $value) {
                         if (!in_array($key, $decode_metadata['table_columns'])){
                             continue;
