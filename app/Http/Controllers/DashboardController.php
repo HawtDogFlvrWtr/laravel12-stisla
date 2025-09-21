@@ -40,27 +40,27 @@ class DashboardController extends Controller
             $values = [];
             $values_md = [];
             $labels = [];
+            $path = "users/{$userId}";
             $decode_metadata = json_decode($get_widget['metadata'], true);
             $get_map_filename = $decode_metadata['map_filename'];
-
+            $real_file_path = storage_path("$path/$get_map_filename");
             if ($get_widget['widget_type_id'] == 1) { # I'm the map i'm the map (he's the map he's the map) I'M THE MAP!!
-                $get_widget['map_json'] = FileUpload::select('geojson')
+                $geojson = FileUpload::select('geojson')
                     ->where('user_id', '=', Auth::id())
                     ->where('filename', '=', $get_map_filename)
-                    ->get();
+                    ->get()->value('geojson');
+                if (!$get_widget['map_json']) {
+                    $get_widget['map_json'] = Storage::get("$path/$get_map_filename");
+                } else {
+                    $get_widget['map_json'] = $geojson;
+                }
 		        $get_widget['random_id'] = Str::random();
 		        $get_widget['filename'] = preg_replace('/[^A-Za-z0-9\_\.]/', '', basename($get_map_filename));
                 $get_widget['filename_only'] = pathinfo($get_widget['filename'], PATHINFO_FILENAME);
             } elseif ($get_widget['widget_type_id'] == 5) { # TABLE!
-                $table_record = FileUpload::select('geojson')
-                    ->where('filename', '=', $get_map_filename)
-                    ->where('user_id', '=', $userId)
-                    ->get();
-                $json_version = json_decode($table_record->value('geojson'), true);
                 $table_keys = [];
                 foreach ($json_version['features'] as $feature) {
                     $value_prep = [];
-                    #$feature['properties'] = array_reverse($feature['properties']);
                     foreach($feature['properties'] as $key => $value) {
                         if (!in_array($key, $decode_metadata['table_columns'])){
                             continue;
@@ -80,9 +80,13 @@ class DashboardController extends Controller
                 $geojson = FileUpload::select('geojson')
                     ->where('filename', '=', $get_map_filename)
                     ->where('user_id', '=', $userId)
-                    ->get();
-                $json_version = json_decode($geojson->value('geojson'), true);
-
+                    ->get()
+                    ->value('geojson');
+                if (!$geojson) {
+                    $json_version = json_decode(Storage::get("$path/$get_map_filename"), true);
+                } else {
+                    $json_version = json_decode($geojson, true);
+                }
                 if ($decode_metadata['y_axis'] == 'COUNT') { # Handle Count
                     foreach ($json_version['features'] as $feature) {
                         if (!isset($values_md[$feature['properties'][$decode_metadata['x_axis']]])) {
@@ -222,12 +226,20 @@ class DashboardController extends Controller
     public function get_geojson($filename) {
         ini_set('memory_limit', -1); # Tell laravel not to be greedy with memory.. GIVE IT ALL TO ME!!!
 	    ob_start('ob_gzhandler');
+        $userId = Auth::id();
+        $path = "users/{$userId}";
 	    $real_filename = $filename.".geojson";
+        $real_file_path = storage_path("$path/$real_filename");
 	    $getfiles = FileUpload::select('geojson')
             ->where('filename', '=', $real_filename)
 			->where('user_id', '=', Auth::id())
 			->get();
-	    return response()->json(json_decode($getfiles->value('geojson'), true))->header('Cache-Control', 'max-age=3600, public');
+        if (!$getfiles->value('geojson')) {
+            $geojson = Storage::get("$path/$real_filename");
+        } else {
+            $geojson = $getfiles->value('geojson');
+        }
+	    return response()->json(json_decode($geojson, true))->header('Cache-Control', 'max-age=3600, public');
     }
 
     public function delete_dashboard(Request $request) {

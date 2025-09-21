@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('title');
             $table->string('filename');
-            $table->json('geojson');
+            $table->json('geojson')->nullable();
             $table->string('md5');
             $table->json('properties_metadata');
             $table->timestamps();

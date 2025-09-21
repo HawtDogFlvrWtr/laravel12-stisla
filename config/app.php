@@ -136,4 +136,5 @@ return [
     |
     */
     'gdal_path' => env('GDAL_PATH', '/bin/'),
+    'UPLOAD_LIMIT' => env('UPLOAD_LIMIT', 15728640)
 ];

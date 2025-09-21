@@ -38,6 +38,18 @@
         </div>
         <div class="col-md-4">
             <div class="card">
+                <div class="card-header">{{ __('How Uploads Work') }}</div>
+                <div class="card-body">
+                    <p>
+                        Easy Dash currently supports the upload of geojson, gpkg, and osm.pbf files.</p>
+                        <p>If you choose to upload a gpkg or osm.pbf files, we will convert each layer into a new
+                        geojson file that will appear in your file upload list. This ensures you can delete the layers you don't find relevant to your projects.</p>
+                        <p>If the resulting geojson file exceeds browser limits, it won't be stored for use on the site.</p>
+                        <p>Each geojson file in your upload list (converted or not) will be available on every map widget you place.</p>
+                    </p>
+                </div>
+            </div>
+            <div class="card">
                 @error('my_file')
                 @foreach ($errors->all() as $error)
                     <div class="alert alert-danger">{{ $error }}</div>
