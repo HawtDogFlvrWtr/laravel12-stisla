@@ -101,7 +101,7 @@
 								getJsonFromServer(`/profile/get-geojson/${first_full_name}`)
 									.then(data => { // We got the data without issue
 										if (data) {
-											overlayMaps{{ $widget['random_id'] }}[first_full_name] = L.geoJson(data);; // Add it to the overlay object
+											overlayMaps{{ $widget['random_id'] }}[first_full_name] = L.geoJson(data); // Add it to the overlay object
 											overlayMaps{{ $widget['random_id'] }}[first_full_name].eachLayer(function (layer) { // Iterate so we can add popups
 												layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
 											});

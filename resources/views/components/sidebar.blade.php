@@ -70,6 +70,7 @@
                 <b class="caret"></b>
                 </p>
             </a>
+            @if (count($dashboards) > 0)
             <div class="collapse {{ Request::is('dashboard/*') ? 'show' : '' }}" id="dashboards">
                 <ul class="nav">
                     @foreach ($dashboards as $dashboard)
@@ -85,6 +86,7 @@
                     @endforeach
                 </ul>
             </div>
+            @endif
         </li>
     </ul>
     </div>
