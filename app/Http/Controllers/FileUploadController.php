@@ -41,7 +41,7 @@ class FileUploadController extends Controller
                 if ($file_extension == 'geojson') { # Handle getting the properties for the upload metadata
                     $fileSize = filesize($filePath);
                     $read_file = Storage::get("$path/$filename"); # Laravel's storage facade Storage::get($file)
-                    $json_version = json_decode($read_file, true);
+		            $json_version = json_decode(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $read_file), true);
                     foreach ($json_version['features'][0]['properties'] as $key => $value) { # Get the first feature because they all have the same properties
                         $geojson_chart_metadata['x_axis'][] = $key; # Add all to the x axis
                         if (is_numeric($value)) {
@@ -50,6 +50,8 @@ class FileUploadController extends Controller
                     }
                     if ($fileSize > $upload_limit) {
                         $read_file = null;
+                    } else {
+                        $read_file = json_encode($json_version);
                     }
                     # If we placed the file successfully
                     $file_upload = new FileUpload;
@@ -80,7 +82,7 @@ class FileUploadController extends Controller
                             exec($gdal_path."ogr2ogr -f GeoJSON -t_srs EPSG:4326 ".$geojson_filename." $filePath '$final_output'", $convert_output);
                             # Like above for a native geojson, we need to open it to get the metadata needed later for charts
                             $read_file = Storage::get("$path/$geojson_filename"); # Laravel's storage facade Storage::get($file)
-                            $json_version = json_decode($read_file, true); # Put it in a pretty array
+                            $json_version = json_decode(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $read_file), true); # Put it in a pretty array
                             foreach ($json_version['features'][0]['properties'] as $key => $value) { # Get the first feature because they all have the same properties
                                 $geojson_chart_metadata['x_axis'][] = $key; # Add all to the x axis
                                 if (is_numeric($value)) {
@@ -90,6 +92,8 @@ class FileUploadController extends Controller
                             $fileSize = strlen($read_file);
                             if ($fileSize > $upload_limit) {
                                 $read_file = null;
+                            } else {
+                                $read_file = json_encode($json_version);
                             }
                             # Add it to the db
                             $file_upload = new FileUpload;
@@ -124,7 +128,7 @@ class FileUploadController extends Controller
                             exec($gdal_path."ogr2ogr -f GeoJSON -t_srs EPSG:4326 ".$geojson_filename." $filePath '$final_output'", $convert_output);
                             # Like above for a native geojson, we need to open it to get the metadata needed later for charts
                             $read_file = Storage::get("$path/$geojson_filename_basename"); # Laravel's storage facade Storage::get($file)
-                            $json_version = json_decode($read_file, true); # Put it in a pretty array
+                            $json_version = json_decode(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $read_file), true); # Put it in a pretty array
                             foreach ($json_version['features'][0]['properties'] as $key => $value) { # Get the first feature because they all have the same properties
                                 $geojson_chart_metadata['x_axis'][] = $key; # Add all to the x axis
                                 if (is_numeric($value)) {
@@ -134,6 +138,8 @@ class FileUploadController extends Controller
                             $fileSize = strlen($read_file);
                             if ($fileSize > $upload_limit) {
                                 $read_file = null;
+                            } else {
+                                $read_file = json_encode($json_version);
                             }
                             # Add it to the db
                             $file_upload = new FileUpload;
@@ -178,6 +184,8 @@ class FileUploadController extends Controller
                             $fileSize = strlen($read_file);
                             if ($fileSize > $upload_limit) {
                                 $read_file = null;
+                            } else {
+                                $read_file = json_encode($json_version);
                             }
                             # Add it to the db
                             $file_upload = new FileUpload;
