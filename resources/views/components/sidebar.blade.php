@@ -62,6 +62,7 @@
                 <p>Upload GeoFiles</p>
             </a>
         </li>
+        @if (count($dashboards) > 0)
         <li>
             <a data-toggle="collapse" href="#dashboards">
                 <i class="fas fa-chart-pie"></i>
@@ -70,7 +71,6 @@
                 <b class="caret"></b>
                 </p>
             </a>
-            @if (count($dashboards) > 0)
             <div class="collapse {{ Request::is('dashboard/*') ? 'show' : '' }}" id="dashboards">
                 <ul class="nav">
                     @foreach ($dashboards as $dashboard)
@@ -86,8 +86,8 @@
                     @endforeach
                 </ul>
             </div>
-            @endif
         </li>
+        @endif
     </ul>
     </div>
 </div>
