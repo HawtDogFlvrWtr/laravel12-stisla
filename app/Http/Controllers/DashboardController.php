@@ -59,6 +59,15 @@ class DashboardController extends Controller
                 $get_widget['filename_only'] = pathinfo($get_widget['filename'], PATHINFO_FILENAME);
             } elseif ($get_widget['widget_type_id'] == 5) { # TABLE!
                 $table_keys = [];
+                $geojson = FileUpload::select('geojson')
+                    ->where('user_id', '=', Auth::id())
+                    ->where('filename', '=', $get_map_filename)
+                    ->get()->value('geojson');
+                if (!$get_widget['map_json']) {
+                    $json_version = json_decode(Storage::get("$path/$get_map_filename"), true);
+                } else {
+                    $json_version = json_decode($geojson, true);
+                }
                 foreach ($json_version['features'] as $feature) {
                     $value_prep = [];
                     foreach($feature['properties'] as $key => $value) {
@@ -173,8 +182,8 @@ class DashboardController extends Controller
 
     public function add_widget($id, Request $request) { // Add the widget to the database
         $request->validate([
-            'widget_type' => ['required'],
-            'widget_type' => ['required'],
+            'widget_type'  => ['required'],
+            'widget_type'  => ['required'],
             'map_filename' => ['required'],
         ]);
         if (!$request->widget_name) { # Did we not get a name? We should use the file Title
