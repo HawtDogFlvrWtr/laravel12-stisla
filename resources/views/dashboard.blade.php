@@ -64,50 +64,62 @@
                         <div class="card-body" style="height:400px;">
 			    			<div class="no-sort" id="{{ $widget['random_id'] }}" style="height:100%;"></div>
 							<script>
-								const overlayMaps{{ $widget['random_id'] }} = {};
+								var overlayMaps{{ $widget['random_id'] }} = {};
 								// Generate all geojson overlays
 								@foreach ($all_geojsons as $each_geojson)
 									var {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }} = L.geoJSON();
 									overlayMaps{{ $widget['random_id'] }}.{{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }} = {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }};
 								@endforeach
+								var markers{{ $widget['random_id'] }} = L.markerClusterGroup(overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}});
+
 								// Setup the map layers we want to use
-								var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+								var osm{{ $widget['random_id'] }} = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 									maxZoom: 19,
 									attribution: '© OpenStreetMap'
 								});
-								var osmH = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+								var osmH{{ $widget['random_id'] }} = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
 									maxZoom: 19,
 									attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team hosted by OpenStreetMap France'
 								});
-								var osmT = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+								var osmT{{ $widget['random_id'] }} = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
 									maxZoom: 19,
 									attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)'
 								});
-								var osmwmsLayer = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+								var osmwmsLayer{{ $widget['random_id'] }} = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
 									layers: 'OSM-WMS'
 								})
-								var topowmsLayer = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+								var topowmsLayer{{ $widget['random_id'] }} = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
 									layers: 'TOPO-WMS'
 								})
-								var baseMaps = {
-									"OpenStreet": osm,
-									"OpenStreet Topographic": osmT,
-									"OpenStreet Humanitarian": osmH,
-									"Open Street Map OSM-WMS": osmwmsLayer,
-									"Open Street Map TOPO-WMS": topowmsLayer,
+								var baseMaps{{ $widget['random_id'] }} = {
+									"OpenStreet": osm{{ $widget['random_id'] }},
+									"OpenStreet Topographic": osmT{{ $widget['random_id'] }},
+									"OpenStreet Humanitarian": osmH{{ $widget['random_id'] }},
+									"Open Street Map OSM-WMS": osmwmsLayer{{ $widget['random_id'] }},
+									"Open Street Map TOPO-WMS": topowmsLayer{{ $widget['random_id'] }},
 								};
 								// Lazy load the geojson assigned to this widget
-								var first_full_name = '{{ $widget['filename_only'] }}';
-								getJsonFromServer(`/profile/get-geojson/${first_full_name}`)
+								var first_full_name{{ $widget['random_id'] }} = '{{ $widget['filename_only'] }}';
+								getJsonFromServer(`/profile/get-geojson/${first_full_name{{ $widget['random_id'] }}}`)
 									.then(data => { // We got the data without issue
 										if (data) {
-											overlayMaps{{ $widget['random_id'] }}[first_full_name] = L.geoJson(data); // Add it to the overlay object
-											overlayMaps{{ $widget['random_id'] }}[first_full_name].eachLayer(function (layer) { // Iterate so we can add popups
+											overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}] = L.geoJson(data, {
+												pointToLayer: function(feature, latlng) {
+													return new L.CircleMarker(latlng, {
+														radius: 5,
+													});
+												}}); 
+	  										// Add it to the overlay object
+											overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}].eachLayer(function (layer) { // Iterate so we can add popups
+												var propertyValue = layer.feature.properties['color'];
+												if (propertyValue) {
+													layer.setStyle({ fillColor: propertyValue, color: propertyValue });
+												}
 												layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
 											});
-											markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[first_full_name]); // Convert that object to the marker library
+											markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}]); // Convert that object to the marker library
 											map{{ $widget['random_id'] }}.addLayer(markers{{ $widget['random_id'] }}); // Add it to the map
-											var bounds = overlayMaps{{ $widget['random_id'] }}[first_full_name].getBounds();
+											var bounds = overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}].getBounds();
 											// Bind them to the map as a whole, so the map and geojson adjust
 											map{{ $widget['random_id'] }}.fitBounds(bounds);
 											map{{ $widget['random_id'] }}.spin(false); // Turn off the spin
@@ -115,16 +127,12 @@
 											console.log("Failed to get json");
 										}
 									});
-								//var {{ $widget['filename_only']}}{{ $widget['random_id'] }} = new L.GeoJSON.AJAX("{{ route('profile.get-geojson', ['filename' => pathinfo($widget['filename'], PATHINFO_FILENAME)]) }}");
-								// Update the object we created earlier with an empty geojson, with the newly loaded ajax driven pull above
-								//overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}} = {{ $widget['filename_only']}}{{ $widget['random_id'] }};
-								var markers{{ $widget['random_id'] }} = L.markerClusterGroup(overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}});
 
 								// Instantiate the map with the map layer, and our default geojson 
 								var map{{ $widget['random_id'] }} = L.map('{{ $widget['random_id'] }}', {
 									center: [0,0],
 									zoom: 14,
-									layers: [osm, overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}}]
+									layers: [osm{{ $widget['random_id'] }}, overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}}]
 								});
 								const resizeObserver{{ $widget['random_id'] }} = new ResizeObserver(() => {
 									map{{ $widget['random_id'] }}.invalidateSize();
@@ -132,12 +140,11 @@
 								resizeObserver{{ $widget['random_id'] }}.observe(document.getElementById("{{ $widget['random_id'] }}"));
 
 								// Create the layers for display in the interface (top right icon)
-								var layerControl = L.control.layers(baseMaps, overlayMaps{{ $widget['random_id'] }}).addTo(map{{ $widget['random_id'] }});	
+								var layerControl = L.control.layers(baseMaps{{ $widget['random_id'] }}, overlayMaps{{ $widget['random_id'] }}).addTo(map{{ $widget['random_id'] }});	
 								L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 									attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 									id: 'mapbox/streets-v11',
 								}).addTo(map{{ $widget['random_id'] }});
-
 
 								// Create a trigger when we add a new geojson overlay
 								map{{ $widget['random_id'] }}.on('overlayadd', onOverlayAdd);
@@ -146,7 +153,6 @@
 								function onOverlayRemove(e) {
 									var full_name = e.name;
 									markers{{ $widget['random_id'] }}.removeLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
-									//map{{ $widget['random_id'] }}.removeLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
 								}
 								// Function for the trigger above that hands us the overlay name that appears in the dropdown. Use this to query for the json data
 								function onOverlayAdd(e) {
@@ -155,8 +161,18 @@
 									getJsonFromServer(`/profile/get-geojson/${full_name}`)
 										.then(data => { // We got the data without issue
 											if (data) {
-												overlayMaps{{ $widget['random_id'] }}[full_name] = L.geoJson(data);;
+												overlayMaps{{ $widget['random_id'] }}[full_name] = L.geoJson(data, {
+													pointToLayer: function(feature, latlng) {
+														return new L.CircleMarker(latlng, {
+															radius: 5,
+														});
+													}
+												});
 												overlayMaps{{ $widget['random_id'] }}[full_name].eachLayer(function (layer) {
+													var propertyValue = layer.feature.properties['color'];
+													if (propertyValue) {
+														layer.setStyle({ fillColor: propertyValue, color: propertyValue });
+													}
 													layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
 												});
 												markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
