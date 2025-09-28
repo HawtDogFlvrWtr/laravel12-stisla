@@ -20,32 +20,184 @@
 		</div>
 	</div>
     <div id="none_shall_pass" class="min-height=1000px;">
-        <div class="row">
-			<!-- Our Dependencies for just leaflet maps -->
-			<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-	    	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js" integrity="sha512-Abr21JO2YqcJ03XGZRPuZSWKBhJpUAR6+2wH5zBeO4wAw4oksr8PRdF+BKIRsxvCdq+Mv4670rZ+dLnIyabbGw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	    	<script src="https://makinacorpus.github.io/Leaflet.Spin/docs/spin/dist/spin.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	    	<script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.2/leaflet.spin.js" integrity="sha512-em8lnJhVwVTWfz2Qg/1hRvLz6gTM4RiXs5gTywZMz/NNunZUybf1PsYHKAjcdx2/+zdRwU4PzOM9CwC5o2ko0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js" integrity="sha512-TiMWaqipFi2Vqt4ugRzsF8oRoGFlFFuqIi30FFxEPNw58Ov9mOy6LgC05ysfkxwLE0xVeZtmr92wVg9siAFRWA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-			<script>
-				async function getJsonFromServer(url) {
-					try {
-						const response = await fetch(url); // Make the network request
-						if (!response.ok) { // Check if the request was successful
-							throw new Error(`HTTP error! status: ${response.status}`);
-						}
-						const jsonData = await response.json(); // Parse the response as JSON
-						return jsonData;
-					} catch (error) {
-						console.error("Error fetching JSON:", error);
-						return null; // Or handle the error as appropriate
+		<!-- Our Dependencies for just leaflet maps -->
+		<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js" integrity="sha512-Abr21JO2YqcJ03XGZRPuZSWKBhJpUAR6+2wH5zBeO4wAw4oksr8PRdF+BKIRsxvCdq+Mv4670rZ+dLnIyabbGw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="https://makinacorpus.github.io/Leaflet.Spin/docs/spin/dist/spin.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.2/leaflet.spin.js" integrity="sha512-em8lnJhVwVTWfz2Qg/1hRvLz6gTM4RiXs5gTywZMz/NNunZUybf1PsYHKAjcdx2/+zdRwU4PzOM9CwC5o2ko0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js" integrity="sha512-TiMWaqipFi2Vqt4ugRzsF8oRoGFlFFuqIi30FFxEPNw58Ov9mOy6LgC05ysfkxwLE0xVeZtmr92wVg9siAFRWA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script>
+			async function getJsonFromServer(url) {
+				try {
+					const response = await fetch(url); // Make the network request
+					if (!response.ok) { // Check if the request was successful
+						throw new Error(`HTTP error! status: ${response.status}`);
 					}
+					const jsonData = await response.json(); // Parse the response as JSON
+					return jsonData;
+				} catch (error) {
+					console.error("Error fetching JSON:", error);
+					return null; // Or handle the error as appropriate
 				}
-			</script>
-            @foreach ($widgets as $widget)
-                @if ($widget['widget_type_id'] == 1) <!-- I'm the map, i'm the map (he's the map, he's the map) I'M THE MAP!-->
-                <div class="col-md-4">
-                    <div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
+			}
+		</script>
+		@foreach ($widgets as $widget)
+			@if ($widget['widget_type_id'] == 1) <!-- I'm the map, i'm the map (he's the map, he's the map) I'M THE MAP!-->
+			<div class="col-md-4">
+				<div id="sortable-cards{{ $widget['id'] }}" class="card" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
+					<div class="card-header">
+						<div class="row">
+							<div class="col-sm-10 text-left">
+								<h2 class="card-title">{{$widget['name']}}</h2>
+							</div>
+							<div class="col-sm-2">
+								<div class="btn-group float-right">
+									<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
+										@csrf
+										<button type="submit" class="btn btn-sm btn-warning rounded-sm fas fa-trash float-right"></button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-body" style="height:400px;">
+						<div class="no-sort" id="{{ $widget['random_id'] }}" style="height:100%;"></div>
+						<script>
+							var overlayMaps{{ $widget['random_id'] }} = {};
+							// Generate all geojson overlays
+							@foreach ($all_geojsons as $each_geojson)
+								var {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }} = L.geoJSON();
+								overlayMaps{{ $widget['random_id'] }}.{{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }} = {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }};
+							@endforeach
+							var markers{{ $widget['random_id'] }} = L.markerClusterGroup(overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}});
+
+							// Setup the map layers we want to use
+							var osm{{ $widget['random_id'] }} = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+								maxZoom: 19,
+								attribution: '© OpenStreetMap'
+							});
+							var osmH{{ $widget['random_id'] }} = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+								maxZoom: 19,
+								attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team hosted by OpenStreetMap France'
+							});
+							var osmT{{ $widget['random_id'] }} = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+								maxZoom: 19,
+								attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)'
+							});
+							var osmwmsLayer{{ $widget['random_id'] }} = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+								layers: 'OSM-WMS'
+							})
+							var topowmsLayer{{ $widget['random_id'] }} = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+								layers: 'TOPO-WMS'
+							})
+							var baseMaps{{ $widget['random_id'] }} = {
+								"OpenStreet": osm{{ $widget['random_id'] }},
+								"OpenStreet Topographic": osmT{{ $widget['random_id'] }},
+								"OpenStreet Humanitarian": osmH{{ $widget['random_id'] }},
+								"Open Street Map OSM-WMS": osmwmsLayer{{ $widget['random_id'] }},
+								"Open Street Map TOPO-WMS": topowmsLayer{{ $widget['random_id'] }},
+							};
+							// Lazy load the geojson assigned to this widget
+							var first_full_name{{ $widget['random_id'] }} = '{{ $widget['filename_only'] }}';
+							getJsonFromServer(`/profile/get-geojson/${first_full_name{{ $widget['random_id'] }}}`)
+								.then(data => { // We got the data without issue
+									if (data) {
+										overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}] = L.geoJson(data, {
+											pointToLayer: function(feature, latlng) {
+												return new L.CircleMarker(latlng, {
+													radius: 5,
+												});
+											}}); 
+										// Add it to the overlay object
+										overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}].eachLayer(function (layer) { // Iterate so we can add popups
+											var propertyValue = layer.feature.properties['color'];
+											if (propertyValue) {
+												layer.setStyle({ fillColor: propertyValue, color: propertyValue });
+											}
+											layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
+										});
+										markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}]); // Convert that object to the marker library
+										map{{ $widget['random_id'] }}.addLayer(markers{{ $widget['random_id'] }}); // Add it to the map
+										var bounds = overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}].getBounds();
+										// Bind them to the map as a whole, so the map and geojson adjust
+										map{{ $widget['random_id'] }}.fitBounds(bounds);
+										map{{ $widget['random_id'] }}.spin(false); // Turn off the spin
+									} else { // We failed... TODO: make this appear on screen to the user so they refresh
+										console.log("Failed to get json");
+									}
+								});
+
+							// Instantiate the map with the map layer, and our default geojson 
+							var map{{ $widget['random_id'] }} = L.map('{{ $widget['random_id'] }}', {
+								center: [0,0],
+								zoom: 14,
+								layers: [osm{{ $widget['random_id'] }}, overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}}]
+							});
+							const resizeObserver{{ $widget['random_id'] }} = new ResizeObserver(() => {
+								map{{ $widget['random_id'] }}.invalidateSize();
+							});
+							resizeObserver{{ $widget['random_id'] }}.observe(document.getElementById("{{ $widget['random_id'] }}"));
+
+							// Create the layers for display in the interface (top right icon)
+							var layerControl = L.control.layers(baseMaps{{ $widget['random_id'] }}, overlayMaps{{ $widget['random_id'] }}).addTo(map{{ $widget['random_id'] }});	
+							L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+								attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+								id: 'mapbox/streets-v11',
+							}).addTo(map{{ $widget['random_id'] }});
+
+							// Create a trigger when we add a new geojson overlay
+							map{{ $widget['random_id'] }}.on('overlayadd', onOverlayAdd);
+							map{{ $widget['random_id'] }}.on('overlayremove', onOverlayRemove);
+							map{{ $widget['random_id'] }}.spin(true); // Turn off the spin
+							function onOverlayRemove(e) {
+								var full_name = e.name;
+								markers{{ $widget['random_id'] }}.removeLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
+							}
+							// Function for the trigger above that hands us the overlay name that appears in the dropdown. Use this to query for the json data
+							function onOverlayAdd(e) {
+								var full_name = e.name;
+								// Pull geojson using the getJsonFromServer function above and add it to the overlayMap object for the correct key
+								getJsonFromServer(`/profile/get-geojson/${full_name}`)
+									.then(data => { // We got the data without issue
+										if (data) {
+											overlayMaps{{ $widget['random_id'] }}[full_name] = L.geoJson(data, {
+												pointToLayer: function(feature, latlng) {
+													return new L.CircleMarker(latlng, {
+														radius: 5,
+													});
+												}
+											});
+											overlayMaps{{ $widget['random_id'] }}[full_name].eachLayer(function (layer) {
+												var propertyValue = layer.feature.properties['color'];
+												if (propertyValue) {
+													layer.setStyle({ fillColor: propertyValue, color: propertyValue });
+												}
+												layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
+											});
+											markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
+											map{{ $widget['random_id'] }}.addLayer(markers{{ $widget['random_id'] }});
+											// Adding the data. Have to segregate the overlayMaps from each map so they don't modify each other
+											// Newly added layers have their popups added to the map using eachLayer instead of oneachfeature
+											var bounds = map{{ $widget['random_id'] }}.getBounds();
+											// Bind them to the map as a whole, so the map and geojson adjust
+											map{{ $widget['random_id'] }}.fitBounds(bounds);
+											map{{ $widget['random_id'] }}.spin(false); // Turn off the spin
+										} else { // We failed... TODO: make this appear on screen to the user so they refresh
+											console.log("Failed to get json");
+										}
+									});
+							}
+						</script>
+					</div>
+				</div>
+			</div>
+			@elseif ($widget['widget_type_id'] > 1 && $widget['widget_type_id'] <= 4)
+				@if ($widget['widget_type_id'] == 4) <!-- I'm a wide chart -->
+				<div class="col-md-3">
+				@else
+				<div class="col-md-6">
+				@endif
+					<div id="sortable-cards{{ $widget['id'] }}" class="card card-chart" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
 						<div class="card-header">
 							<div class="row">
 								<div class="col-sm-10 text-left">
@@ -61,220 +213,66 @@
 								</div>
 							</div>
 						</div>
-                        <div class="card-body" style="height:400px;">
-			    			<div class="no-sort" id="{{ $widget['random_id'] }}" style="height:100%;"></div>
-							<script>
-								var overlayMaps{{ $widget['random_id'] }} = {};
-								// Generate all geojson overlays
-								@foreach ($all_geojsons as $each_geojson)
-									var {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }} = L.geoJSON();
-									overlayMaps{{ $widget['random_id'] }}.{{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }} = {{ pathinfo($each_geojson['filename'], PATHINFO_FILENAME); }}{{ $widget['random_id'] }};
-								@endforeach
-								var markers{{ $widget['random_id'] }} = L.markerClusterGroup(overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}});
-
-								// Setup the map layers we want to use
-								var osm{{ $widget['random_id'] }} = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-									maxZoom: 19,
-									attribution: '© OpenStreetMap'
-								});
-								var osmH{{ $widget['random_id'] }} = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-									maxZoom: 19,
-									attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team hosted by OpenStreetMap France'
-								});
-								var osmT{{ $widget['random_id'] }} = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-									maxZoom: 19,
-									attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)'
-								});
-								var osmwmsLayer{{ $widget['random_id'] }} = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
-									layers: 'OSM-WMS'
-								})
-								var topowmsLayer{{ $widget['random_id'] }} = L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
-									layers: 'TOPO-WMS'
-								})
-								var baseMaps{{ $widget['random_id'] }} = {
-									"OpenStreet": osm{{ $widget['random_id'] }},
-									"OpenStreet Topographic": osmT{{ $widget['random_id'] }},
-									"OpenStreet Humanitarian": osmH{{ $widget['random_id'] }},
-									"Open Street Map OSM-WMS": osmwmsLayer{{ $widget['random_id'] }},
-									"Open Street Map TOPO-WMS": topowmsLayer{{ $widget['random_id'] }},
-								};
-								// Lazy load the geojson assigned to this widget
-								var first_full_name{{ $widget['random_id'] }} = '{{ $widget['filename_only'] }}';
-								getJsonFromServer(`/profile/get-geojson/${first_full_name{{ $widget['random_id'] }}}`)
-									.then(data => { // We got the data without issue
-										if (data) {
-											overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}] = L.geoJson(data, {
-												pointToLayer: function(feature, latlng) {
-													return new L.CircleMarker(latlng, {
-														radius: 5,
-													});
-												}}); 
-	  										// Add it to the overlay object
-											overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}].eachLayer(function (layer) { // Iterate so we can add popups
-												var propertyValue = layer.feature.properties['color'];
-												if (propertyValue) {
-													layer.setStyle({ fillColor: propertyValue, color: propertyValue });
-												}
-												layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
-											});
-											markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}]); // Convert that object to the marker library
-											map{{ $widget['random_id'] }}.addLayer(markers{{ $widget['random_id'] }}); // Add it to the map
-											var bounds = overlayMaps{{ $widget['random_id'] }}[first_full_name{{ $widget['random_id'] }}].getBounds();
-											// Bind them to the map as a whole, so the map and geojson adjust
-											map{{ $widget['random_id'] }}.fitBounds(bounds);
-											map{{ $widget['random_id'] }}.spin(false); // Turn off the spin
-										} else { // We failed... TODO: make this appear on screen to the user so they refresh
-											console.log("Failed to get json");
-										}
-									});
-
-								// Instantiate the map with the map layer, and our default geojson 
-								var map{{ $widget['random_id'] }} = L.map('{{ $widget['random_id'] }}', {
-									center: [0,0],
-									zoom: 14,
-									layers: [osm{{ $widget['random_id'] }}, overlayMaps{{ $widget['random_id'] }}.{{ $widget['filename_only']}}]
-								});
-								const resizeObserver{{ $widget['random_id'] }} = new ResizeObserver(() => {
-									map{{ $widget['random_id'] }}.invalidateSize();
-								});
-								resizeObserver{{ $widget['random_id'] }}.observe(document.getElementById("{{ $widget['random_id'] }}"));
-
-								// Create the layers for display in the interface (top right icon)
-								var layerControl = L.control.layers(baseMaps{{ $widget['random_id'] }}, overlayMaps{{ $widget['random_id'] }}).addTo(map{{ $widget['random_id'] }});	
-								L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-									attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-									id: 'mapbox/streets-v11',
-								}).addTo(map{{ $widget['random_id'] }});
-
-								// Create a trigger when we add a new geojson overlay
-								map{{ $widget['random_id'] }}.on('overlayadd', onOverlayAdd);
-								map{{ $widget['random_id'] }}.on('overlayremove', onOverlayRemove);
-								map{{ $widget['random_id'] }}.spin(true); // Turn off the spin
-								function onOverlayRemove(e) {
-									var full_name = e.name;
-									markers{{ $widget['random_id'] }}.removeLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
-								}
-								// Function for the trigger above that hands us the overlay name that appears in the dropdown. Use this to query for the json data
-								function onOverlayAdd(e) {
-									var full_name = e.name;
-									// Pull geojson using the getJsonFromServer function above and add it to the overlayMap object for the correct key
-									getJsonFromServer(`/profile/get-geojson/${full_name}`)
-										.then(data => { // We got the data without issue
-											if (data) {
-												overlayMaps{{ $widget['random_id'] }}[full_name] = L.geoJson(data, {
-													pointToLayer: function(feature, latlng) {
-														return new L.CircleMarker(latlng, {
-															radius: 5,
-														});
-													}
-												});
-												overlayMaps{{ $widget['random_id'] }}[full_name].eachLayer(function (layer) {
-													var propertyValue = layer.feature.properties['color'];
-													if (propertyValue) {
-														layer.setStyle({ fillColor: propertyValue, color: propertyValue });
-													}
-													layer.bindPopup('<pre>'+JSON.stringify(layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+'</pre>');
-												});
-												markers{{ $widget['random_id'] }}.addLayer(overlayMaps{{ $widget['random_id'] }}[full_name]);
-												map{{ $widget['random_id'] }}.addLayer(markers{{ $widget['random_id'] }});
-												// Adding the data. Have to segregate the overlayMaps from each map so they don't modify each other
-												// Newly added layers have their popups added to the map using eachLayer instead of oneachfeature
-												var bounds = map{{ $widget['random_id'] }}.getBounds();
-												// Bind them to the map as a whole, so the map and geojson adjust
-												map{{ $widget['random_id'] }}.fitBounds(bounds);
-												map{{ $widget['random_id'] }}.spin(false); // Turn off the spin
-											} else { // We failed... TODO: make this appear on screen to the user so they refresh
-												console.log("Failed to get json");
-											}
-										});
-								}
-							</script>
-                        </div>
-                    </div>
-                </div>
-				@elseif ($widget['widget_type_id'] > 1 && $widget['widget_type_id'] <= 4)
-					@if ($widget['widget_type_id'] == 4) <!-- I'm a wide chart -->
-					<div class="col-md-3">
-					@else
-					<div class="col-md-6">
-					@endif
-						<div id="sortable-cards{{ $widget['id'] }}" class="card card-chart" style="z-index: 10;" style="width: 200px; position: absolute; box-sizing:content-box;">
-							<div class="card-header">
-								<div class="row">
-									<div class="col-sm-10 text-left">
-										<h2 class="card-title">{{$widget['name']}}</h2>
-									</div>
-									<div class="col-sm-2">
-										<div class="btn-group float-right">
-											<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
-												@csrf
-												<button type="submit" class="btn btn-sm btn-warning rounded-sm fas fa-trash float-right"></button>
-											</form>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="card-body">
-								<div class="no-sort" style="height: 100%; width: 100%;">
-									@if (!$widget['chart'])
-										<b>Failed to produce results with selected parameters.</b>
-									@else
-									<x-chartjs-component :chart="$widget['chart']" />
-									@endif
-								</div>
+						<div class="card-body">
+							<div class="no-sort" style="height: 100%; width: 100%;">
+								@if (!$widget['chart'])
+									<b>Failed to produce results with selected parameters.</b>
+								@else
+								<x-chartjs-component :chart="$widget['chart']" />
+								@endif
 							</div>
 						</div>
 					</div>
-				@else <!-- Table -->
-					<div  class="col-md-12">
-						<div id="no-resize" class="card">
-							<div class="card-header">
-								<div class="row">
-									<div class="col-sm-10 text-left">
-										<h2 class="card-title">{{$widget['name']}}</h2>
-									</div>
-									<div class="col-sm-2">
-										<div class="btn-group float-right">
-											<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
-												@csrf
-												<button type="submit" class="btn btn-sm btn-warning rounded-sm fas fa-trash"></button>
-											</form>
-										</div>
-									</div>
+				</div>
+			@else <!-- Table -->
+				<div  class="col-md-12">
+					<div id="no-resize" class="card">
+						<div class="card-header">
+							<div class="row">
+								<div class="col-sm-10 text-left">
+									<h2 class="card-title">{{$widget['name']}}</h2>
 								</div>
-							</div>
-							<div class="card-body">
-								<div class="table-responsive">
-									<table id="table-{{ $widget['random_id'] }}" class="table table-striped" style="z-index: 10;">
-										<thead>
-											<tr>
-												@foreach ($widget['table_headings'] as $heading)
-												<th>{{ $heading }}</th>
-												@endforeach
-											</tr>
-										</thead>
-										<tbody>
-											@foreach ($widget['table'] as $key)
-											<tr>
-												@foreach($key as $value)
-													<td>{{ $value }}</td>
-												@endforeach
-											</tr>
-											@endforeach
-										</tbody>
-									</table>
-									<script>
-										document.addEventListener("DOMContentLoaded", function() {
-											$("#table-{{ $widget['random_id'] }}").DataTable();
-										});
-									</script>
+								<div class="col-sm-2">
+									<div class="btn-group float-right">
+										<form id="delete-{{ $widget['id'] }}" action="{{ route('profile.delete-widget', ['id' => $widget['id'], 'dash_id' => $dashboard_info['id']]) }}" method="POST" style="display: inline-block;">
+											@csrf
+											<button type="submit" class="btn btn-sm btn-warning rounded-sm fas fa-trash"></button>
+										</form>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>				
-                @endif
-            @endforeach
-        </div>
+						<div class="card-body">
+							<div class="table-responsive">
+								<table id="table-{{ $widget['random_id'] }}" class="table table-striped" style="z-index: 10;">
+									<thead>
+										<tr>
+											@foreach ($widget['table_headings'] as $heading)
+											<th>{{ $heading }}</th>
+											@endforeach
+										</tr>
+									</thead>
+									<tbody>
+										@foreach ($widget['table'] as $key)
+										<tr>
+											@foreach($key as $value)
+												<td>{{ $value }}</td>
+											@endforeach
+										</tr>
+										@endforeach
+									</tbody>
+								</table>
+								<script>
+									document.addEventListener("DOMContentLoaded", function() {
+										$("#table-{{ $widget['random_id'] }}").DataTable();
+									});
+								</script>
+							</div>
+						</div>
+					</div>
+				</div>				
+			@endif
+		@endforeach
     </div>
 </div>
 	<script>
